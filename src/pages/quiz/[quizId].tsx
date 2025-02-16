@@ -1,40 +1,15 @@
 import Layout from "@/components/Layout";
-import Quiz from "@/components/Quiz";
-import { parseQuiz, QuizType } from "@/util/parser";
+import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-const contents = `
-name: AGI Test Questions
-description: Hi there
----
-What's up *doc*?
-
-This is all *one* question.
----
-How's it *going|hanging*?
----
-Group [*A*, *B*, or, *C*], and *Q*?
----
-1. *This* is a list
-2. *With* some *answers*
----
-- a
-- b
-- c
-
-hi *there*
-`;
+const QuizLoader = dynamic(() => import("@/components/QuizLoader"), {
+  ssr: false,
+});
 
 export default function QuizPage() {
-  const [result, setResult] = useState<QuizType | null>(null);
-
-  useEffect(() => {
-    const a = async () => {
-      setResult(await parseQuiz(contents.trim()));
-    };
-    a();
-  }, []);
+  const router = useRouter();
+  const quizId = router.query.quizId as string;
 
   return (
     <>
@@ -46,7 +21,9 @@ export default function QuizPage() {
       </Head>
 
       <Layout>
-        <main>{result && <Quiz quiz={result} />}</main>
+        <main>
+          <QuizLoader quizId={quizId} />
+        </main>
         <footer></footer>
       </Layout>
     </>

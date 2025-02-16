@@ -1,5 +1,10 @@
 import Layout from "@/components/Layout";
+import dynamic from "next/dynamic";
 import Head from "next/head";
+
+const QuizList = dynamic(() => import("@/components/QuizList"), {
+  ssr: false,
+});
 
 export default function Home() {
   return (
@@ -12,8 +17,9 @@ export default function Home() {
       </Head>
 
       <Layout>
-        <main>Recent Quizzes</main>
-        <footer></footer>
+        <main>
+          <QuizList />
+        </main>
       </Layout>
     </>
   );

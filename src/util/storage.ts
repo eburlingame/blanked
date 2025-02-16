@@ -1,4 +1,7 @@
-import { QuizType, QuizStorage } from "./models";
+"use client";
+
+import { QuizStorage } from "./models";
+import { QuizType } from "./parser";
 
 const BLANKER_QUIZ_LOCALSTORAGE_KEY = "blanker_quiz_dev";
 
@@ -19,14 +22,9 @@ export const updateRecentQuizzes = (quizzes: QuizType[]) => {
   );
 };
 
-export const importQuiz = async (url: string) => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Failed to fetch quiz");
-  }
+export const addNewQuiz = (quiz: QuizType) => {
+  const quizzes = getRecentQuizzes();
+  const newQuizzes = [...quizzes, quiz];
 
-  const data = await response.json();
-  if (!data) {
-    throw new Error("Invalid quiz data");
-  }
+  updateRecentQuizzes(newQuizzes);
 };

@@ -2,11 +2,13 @@
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
+import slugify from "slugify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import { parse } from "yaml";
 
 export type QuizType = {
+  id: string;
   name: string;
   description: string;
   questions: QuizQuestionType[];
@@ -22,7 +24,7 @@ export type QuizAnswerType = {
   options: string[];
 };
 
-export const parseQuiz = async (contents: string) => {
+export const parseQuiz = async (contents: string): Promise<QuizType> => {
   const splitPattern = /---\n/g;
   const parts = contents.split(splitPattern);
 
@@ -30,6 +32,7 @@ export const parseQuiz = async (contents: string) => {
   const questions = await Promise.all(parts.splice(1).map(parseQuestion));
 
   return {
+    id: slugify(frontMatter.name),
     name: frontMatter.name,
     description: frontMatter.description,
     questions,
