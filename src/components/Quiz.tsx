@@ -12,13 +12,28 @@ const Quiz = ({ quiz }: QuizProps) => {
   const question = quiz.questions[currentQuestion];
 
   const advanceQuestion = () => {
+    if (currentQuestion >= quiz.questions.length - 1) {
+      return;
+    }
     setCurrentQuestion((prev) => prev + 1);
+  };
+
+  const prevQuestion = () => {
+    if (currentQuestion === 0) {
+      return;
+    }
+    setCurrentQuestion((prev) => prev - 1);
   };
 
   return (
     <Box>
       <Heading>{quiz.name}</Heading>
-      <Question question={question} onAdvance={advanceQuestion} />
+      <Question
+        question={question}
+        onAdvance={advanceQuestion}
+        onNext={advanceQuestion}
+        onPrevious={prevQuestion}
+      />
     </Box>
   );
 };
