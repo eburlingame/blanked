@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import Quiz from "@/components/Quiz";
 import { parseQuiz, QuizType } from "@/util/quiz";
 import Head from "next/head";
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ name: AGI Test Questions
 description: Hi there
 ---
 What's up *doc*?
+
 This is all *one* question.
 ---
 How's it *going|hanging*?
@@ -20,10 +22,12 @@ export default function QuizPage() {
 
   useEffect(() => {
     const a = async () => {
-      setResult((await parseQuiz(contents.trim())) as any);
+      setResult(await parseQuiz(contents.trim()));
     };
     a();
   }, []);
+
+  console.log(result);
 
   return (
     <>
@@ -35,9 +39,7 @@ export default function QuizPage() {
       </Head>
 
       <Layout>
-        <main>
-          a: <pre>{JSON.stringify(result, null, 2)}</pre>
-        </main>
+        <main>{result && <Quiz quiz={result} />}</main>
         <footer></footer>
       </Layout>
     </>

@@ -13,7 +13,7 @@ export type QuizType = {
 
 export type QuizQuestionType = {
   markdown: string;
-  answers: string[];
+  answers: QuizAnswerType[];
 };
 
 export type QuizAnswerType = {
@@ -53,14 +53,6 @@ const parseFrontMatter = (yamlSection: string) => {
 };
 
 const parseQuestion = async (questionString: string) => {
-  const ast = await unified()
-    .use(remarkParse)
-    .use(answerRemarkPlugin)
-    .use(remarkStringify)
-    .parse(questionString);
-
-  console.log(ast);
-
   const contents = await unified()
     .use(remarkParse)
     .use(answerRemarkPlugin)
@@ -77,12 +69,29 @@ const parseQuestion = async (questionString: string) => {
         }
 
         if (node.type === "emphasis") {
-          const answer = {
+          const answer: QuizAnswerType = {
             groupId: file.groupId,
             options: node.children[0].value
               .split("|")
               .map((s: string) => s.trim()),
           };
+
+          const questionLength = Math.max(
+            ...answer.options.map((o) => o.length)
+          );
+
+          node.children = node.children.map((child: any) => {
+            if (child.type === "text") {
+              return {
+                type: "text",
+                value: encodeAnswerContents(
+                  file.answers.length,
+                  questionLength
+                ),
+              };
+            }
+            return child;
+          });
 
           if (file.answers) {
             file.answers.push(answer);
@@ -102,6 +111,8 @@ const parseQuestion = async (questionString: string) => {
           if (closeBracket !== -1) {
             file.groupId = undefined;
           }
+
+          node.value = node.value.replace(/\[|\]/g, "");
         }
       });
     };
@@ -109,6 +120,33 @@ const parseQuestion = async (questionString: string) => {
 
   return {
     markdown: contents.toString(),
-    answers: contents.answers || [],
+    answers: (contents as any).answers || [],
   };
+};
+
+export const encodeAnswerContents = (
+  answerIndex: number,
+  answerLen: number
+) => {
+  const answer = `answer_${answerIndex}_${answerLen}`;
+  return answer;
+};
+
+export type AnswerContents = {
+  answerIndex: number;
+  answerLen: number;
+};
+
+export const decodeAnswerContents = (
+  contents: string
+): AnswerContents | null => {
+  const regex = /answer_(\d+)_(\d+)/g;
+
+  const match = regex.exec(contents);
+  if (match) {
+    const answerIndex = parseInt(match[1], 10);
+    const answerLen = parseInt(match[2], 10);
+    return { answerIndex, answerLen };
+  }
+  return null;
 };

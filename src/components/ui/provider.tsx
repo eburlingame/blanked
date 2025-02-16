@@ -3,7 +3,7 @@
 import {
   ChakraProvider,
   createSystem,
-  defaultBaseConfig,
+  defaultConfig,
   defineConfig,
 } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
@@ -21,7 +21,7 @@ const customConfig = defineConfig({
   },
 });
 
-const system = createSystem(defaultBaseConfig, customConfig);
+const system = createSystem(defaultConfig, customConfig);
 
 export function Provider(props: ColorModeProviderProps) {
   return (
