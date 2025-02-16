@@ -1,4 +1,4 @@
-import { AnswerContents } from "@/util/quiz";
+import { AnswerContents } from "@/util/parser";
 import { ScoredAnswer } from "@/util/score";
 import { Input } from "@chakra-ui/react";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import { useState } from "react";
 export type AnswerInputProps = {
   contents: AnswerContents;
   initialValue: string;
+  shouldFocus: boolean;
   isRevealed: boolean;
   scoredAnswer: ScoredAnswer | null;
   onChange: (a: string) => void;
@@ -15,6 +16,7 @@ export type AnswerInputProps = {
 const AnswerInput = ({
   contents,
   initialValue,
+  shouldFocus,
   isRevealed,
   scoredAnswer,
   onChange,
@@ -30,8 +32,8 @@ const AnswerInput = ({
 
   return (
     <Input
-      autoFocus={contents.answerIndex === 0}
-      w={contents.answerLen * 8}
+      autoFocus={shouldFocus}
+      w={`${contents.answerLen * 14}px`}
       px="2"
       py="1"
       rounded="lg"

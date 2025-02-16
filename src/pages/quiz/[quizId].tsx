@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import Quiz from "@/components/Quiz";
-import { parseQuiz, QuizType } from "@/util/quiz";
+import { parseQuiz, QuizType } from "@/util/parser";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 
@@ -15,6 +15,15 @@ This is all *one* question.
 How's it *going|hanging*?
 ---
 Group [*A*, *B*, or, *C*], and *Q*?
+---
+1. *This* is a list
+2. *With* some *answers*
+---
+- a
+- b
+- c
+
+hi *there*
 `;
 
 export default function QuizPage() {
@@ -26,8 +35,6 @@ export default function QuizPage() {
     };
     a();
   }, []);
-
-  console.log(result);
 
   return (
     <>

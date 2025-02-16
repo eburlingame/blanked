@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
@@ -55,6 +56,7 @@ const parseFrontMatter = (yamlSection: string) => {
 const parseQuestion = async (questionString: string) => {
   const contents = await unified()
     .use(remarkParse)
+    .use(remarkGfm)
     .use(answerRemarkPlugin)
     .use(remarkStringify)
     .process(questionString);

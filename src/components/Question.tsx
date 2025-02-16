@@ -2,19 +2,21 @@ import {
   AnswerContents,
   decodeAnswerContents,
   QuizQuestionType,
-} from "@/util/quiz";
+} from "@/util/parser";
 import { ScoredAnswer, scoreQuestion } from "@/util/score";
 import { Box, Button, HStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import AnswerInput from "./AnswerInput";
+import { Prose } from "./ui/prose";
 
 export type QuestionProps = {
   question: QuizQuestionType;
 
   onPrevious: () => void;
   onNext: () => void;
-  onAdvance: () => void;
+  onAdvance: (correct: boolean) => void;
 };
 
 const Question = ({
@@ -24,7 +26,7 @@ const Question = ({
   onAdvance,
 }: QuestionProps) => {
   const userAnswers = useRef<string[]>(question.answers.map(() => ""));
-
+  const [firstAnswer, setFirstAnswer] = useState(true);
   const [isRevealed, setIsRevealed] = useState(false);
   const [scoredAnswers, setScoredAnswer] = useState<ScoredAnswer[] | null>(
     null
@@ -33,6 +35,8 @@ const Question = ({
   useEffect(() => {
     userAnswers.current = question.answers.map(() => "");
     setScoredAnswer(null);
+    setIsRevealed(false);
+    setFirstAnswer(true);
   }, [question]);
 
   const setAnswer = (answerIndex: number) => (value: string) => {
@@ -44,31 +48,32 @@ const Question = ({
     });
   };
 
-  const advanceQuestion = () => {
-    onAdvance();
-  };
-
   const scoreQuestions = () => {
+    setFirstAnswer(false);
     const scored = scoreQuestion(question, userAnswers.current);
-
-    console.log(scored);
     setScoredAnswer(scored);
 
     return scored;
-  };
-
-  const submitQuestions = () => {
-    const scored = scoreQuestions();
-
-    if (scored.every((a) => a.isCorrect)) {
-      setTimeout(() => advanceQuestion(), 450);
-    }
   };
 
   const onReveal = () => {
     scoreQuestions();
     setIsRevealed(true);
   };
+
+  const submitQuestions = () => {
+    const scored = scoreQuestions();
+
+    if (scored.every((a) => a.isCorrect)) {
+      setTimeout(() => onAdvance(firstAnswer), 450);
+    } else {
+      if (userAnswers.current.some((v) => v.trim() === "")) {
+        onReveal();
+      }
+    }
+  };
+  const focusedAnswer =
+    scoredAnswers?.findIndex((a) => a.isCorrect === false) || 0;
 
   return (
     <Box mt="4">
@@ -79,30 +84,34 @@ const Question = ({
         rounded="md"
         p="4"
       >
-        <Markdown
-          components={{
-            em: ({ node }) => {
-              const contents = getNodeContents(node);
-              if (!contents) return null;
+        <Prose color="white">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              em: ({ node }) => {
+                const contents = getNodeContents(node);
+                if (!contents) return null;
 
-              const { answerIndex } = contents;
+                const { answerIndex } = contents;
 
-              return (
-                <AnswerInput
-                  key={answerIndex.toString()}
-                  contents={contents}
-                  initialValue={userAnswers.current[answerIndex]}
-                  onSubmit={submitQuestions}
-                  onChange={setAnswer(answerIndex)}
-                  scoredAnswer={scoredAnswers?.[answerIndex] || null}
-                  isRevealed={isRevealed}
-                />
-              );
-            },
-          }}
-        >
-          {question.markdown}
-        </Markdown>
+                return (
+                  <AnswerInput
+                    key={answerIndex.toString()}
+                    shouldFocus={answerIndex === focusedAnswer}
+                    contents={contents}
+                    initialValue={userAnswers.current[answerIndex]}
+                    onSubmit={submitQuestions}
+                    onChange={setAnswer(answerIndex)}
+                    scoredAnswer={scoredAnswers?.[answerIndex] || null}
+                    isRevealed={isRevealed}
+                  />
+                );
+              },
+            }}
+          >
+            {question.markdown}
+          </Markdown>
+        </Prose>
       </Box>
 
       <HStack mt="2" justifyContent="center">

@@ -1,5 +1,5 @@
 import { closest } from "fastest-levenshtein";
-import { QuizAnswerType, QuizQuestionType } from "./quiz";
+import { QuizAnswerType, QuizQuestionType } from "./parser";
 
 export type ScoredAnswer = {
   answer: string;
