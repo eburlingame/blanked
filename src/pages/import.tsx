@@ -1,6 +1,5 @@
 import Layout from "@/components/Layout";
-import { parseQuiz } from "@/util/parser";
-import { addNewQuiz } from "@/util/storage";
+import { importQuiz } from "@/util/import";
 import { Button, Heading, Input } from "@chakra-ui/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -16,11 +15,7 @@ export default function Import() {
   const doImport = async () => {
     try {
       setIsImporting(true);
-      const response = await fetch(importUrl);
-      const text = await response.text();
-      const quiz = await parseQuiz(text.trim());
-
-      addNewQuiz(quiz);
+      const quiz = await importQuiz(importUrl);
       router.push(`/quiz/${quiz.id}`);
     } catch (error) {
       alert("Error importing quiz: " + error);

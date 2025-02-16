@@ -10,6 +10,7 @@ import { parse } from "yaml";
 export type QuizType = {
   id: string;
   name: string;
+  url: string;
   description: string;
   questions: QuizQuestionType[];
 };
@@ -24,7 +25,10 @@ export type QuizAnswerType = {
   options: string[];
 };
 
-export const parseQuiz = async (contents: string): Promise<QuizType> => {
+export const parseQuiz = async (
+  url: string,
+  contents: string
+): Promise<QuizType> => {
   const splitPattern = /---\n/g;
   const parts = contents.split(splitPattern);
 
@@ -35,6 +39,7 @@ export const parseQuiz = async (contents: string): Promise<QuizType> => {
     id: slugify(frontMatter.name),
     name: frontMatter.name,
     description: frontMatter.description,
+    url,
     questions,
   };
 };
