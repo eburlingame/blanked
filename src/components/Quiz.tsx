@@ -30,7 +30,7 @@ const Quiz = ({ quiz }: QuizProps) => {
 
   const nextQuestion = () => {
     if (currentQuestion < quiz.questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
+      setCurrentQuestion((i) => i + 1);
     } else {
       setIsComplete(true);
     }
@@ -40,7 +40,7 @@ const Quiz = ({ quiz }: QuizProps) => {
     if (currentQuestion <= 0) {
       return;
     }
-    setCurrentQuestion((prev) => prev - 1);
+    setCurrentQuestion((i) => i - 1);
   };
 
   const onReset = () => {

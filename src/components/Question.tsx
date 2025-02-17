@@ -47,7 +47,6 @@ const Question = ({
   const scoreResponses = () => {
     setFirstAnswer(false);
     const scored = scoreQuestion(question, userAnswers.current);
-    console.log(scored);
     setScoredAnswer(scored);
 
     return scored;
@@ -83,10 +82,31 @@ const Question = ({
 
     const isRevealed = status === "correct" || status === "incorrect";
     if (isRevealed) {
-      console.log("revealing")
       onReveal();
     }
   }, [question]);
+
+  useEffect(() => {
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" && e.ctrlKey) {
+        e.stopPropagation();
+        e.preventDefault();
+        onNext();
+      }
+      if (e.key === "ArrowLeft" && e.ctrlKey) {
+        console.log("here");
+        e.stopPropagation();
+        e.preventDefault();
+        onPrevious();
+      }
+    };
+
+    window.addEventListener("keydown", onKeydown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeydown);
+    };
+  }, [onNext, onPrevious]);
 
   const focusedAnswer =
     scoredAnswers?.findIndex((a) => a.isCorrect === false) || 0;
