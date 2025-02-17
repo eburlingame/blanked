@@ -23,7 +23,7 @@ const QuizSummary = ({ quiz, qStatuses, onReset }: QuizSummaryProps) => {
     (status) => status === "correct"
   ).length;
 
-  const skipped = qStatuses.filter((status) => status === "skipped").length;
+  const skipped = qStatuses.filter((status) => status === "unanswered").length;
 
   return (
     <VStack alignItems="center">
