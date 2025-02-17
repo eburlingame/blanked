@@ -74,10 +74,7 @@ const Quiz = ({ quiz }: QuizProps) => {
             </Progress.Track>
 
             <HStack mt="2" pt="0" justify={"space-between"}>
-              <Progress.ValueText justifySelf="end">
-                Question <FormatNumber value={currentQuestion} /> of{" "}
-                <FormatNumber value={quiz.questions.length} />
-              </Progress.ValueText>
+              <Progress.ValueText />
 
               <Progress.ValueText color="green.400">
                 <FormatNumber value={numberCorrect} /> of{" "}
