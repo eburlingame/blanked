@@ -35,19 +35,22 @@ const AnswerInput = ({
       autoFocus={shouldFocus}
       w={`${contents.answerLen * 14}px`}
       px="2"
-      py="1"
-      rounded="lg"
+      py="0"
+      my="1"
+      mx="1"
+      rounded="xs"
       value={value}
       onChange={onValueChange}
       onKeyUp={(e) => e.key === "Enter" && onSubmit()}
       placeholder={isRevealed && scoredAnswer ? scoredAnswer.answer : ""}
       color="white"
       _placeholder={{ color: "white" }}
+      _focus={{ outlineColor: "blue.600" }}
       backgroundColor={
         scoredAnswer
           ? scoredAnswer.isCorrect
-            ? "green.600"
-            : "red.600"
+            ? "green.500"
+            : "red.500"
           : "inherit"
       }
       borderColor={

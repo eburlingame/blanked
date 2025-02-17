@@ -9,21 +9,24 @@ import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AnswerInput from "./AnswerInput";
+import { QuestionStatus } from "./Quiz";
 import { Prose } from "./ui/prose";
 
 export type QuestionProps = {
   question: QuizQuestionType;
+  status: QuestionStatus;
+  onStatusChange: (status: QuestionStatus) => void;
 
   onPrevious: () => void;
   onNext: () => void;
-  onAdvance: (correct: boolean) => void;
 };
 
 const Question = ({
   question,
+  status,
+  onStatusChange,
   onPrevious,
   onNext,
-  onAdvance,
 }: QuestionProps) => {
   const userAnswers = useRef<string[]>(question.answers.map(() => ""));
   const [firstAnswer, setFirstAnswer] = useState(true);
@@ -31,13 +34,6 @@ const Question = ({
   const [scoredAnswers, setScoredAnswer] = useState<ScoredAnswer[] | null>(
     null
   );
-
-  useEffect(() => {
-    userAnswers.current = question.answers.map(() => "");
-    setScoredAnswer(null);
-    setIsRevealed(false);
-    setFirstAnswer(true);
-  }, [question]);
 
   const setAnswer = (answerIndex: number) => (value: string) => {
     userAnswers.current = userAnswers.current.map((a, i) => {
@@ -48,43 +44,63 @@ const Question = ({
     });
   };
 
-  const scoreQuestions = () => {
+  const scoreResponses = () => {
     setFirstAnswer(false);
     const scored = scoreQuestion(question, userAnswers.current);
+    console.log(scored);
     setScoredAnswer(scored);
 
     return scored;
   };
 
   const onReveal = () => {
-    scoreQuestions();
+    scoreResponses();
     setIsRevealed(true);
   };
 
   const submitQuestions = () => {
-    const scored = scoreQuestions();
+    const scored = scoreResponses();
+    const questionCorrect = scored.every((a) => a.isCorrect);
 
-    if (scored.every((a) => a.isCorrect)) {
-      setTimeout(() => onAdvance(firstAnswer), 450);
+    if (firstAnswer && questionCorrect) {
+      onStatusChange("correct");
     } else {
+      onStatusChange("incorrect");
       if (userAnswers.current.some((v) => v.trim() === "")) {
         onReveal();
       }
     }
+
+    if (questionCorrect) {
+      setTimeout(() => onNext(), 450);
+    }
   };
+
+  useEffect(() => {
+    userAnswers.current = question.answers.map(() => "");
+    setScoredAnswer(null);
+    setFirstAnswer(status === "unanswered");
+
+    const isRevealed = status === "correct" || status === "incorrect";
+    if (isRevealed) {
+      console.log("revealing")
+      onReveal();
+    }
+  }, [question]);
+
   const focusedAnswer =
     scoredAnswers?.findIndex((a) => a.isCorrect === false) || 0;
 
   return (
     <Box mt="4">
       <Box
-        borderColor="blue.600"
+        borderColor="gray.400"
         borderRadius="md"
         borderWidth="thin"
         rounded="md"
         p="4"
       >
-        <Prose color="white">
+        <Prose color="white" fontSize="md" lineHeight="1.5em">
           <Markdown
             remarkPlugins={[remarkGfm]}
             components={{

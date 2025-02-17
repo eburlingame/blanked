@@ -64,7 +64,7 @@ const QuizList = () => {
 
               <VStack alignItems="flex-start" gap="0" ml="1">
                 <Box>{quiz.name}</Box>
-                <Box fontSize="xs">{new URL(quiz.url).host}</Box>
+                <Box fontSize="xs">{new URL(quiz.url).host} - {quiz.questions.length} questions</Box>
               </VStack>
             </HStack>
 

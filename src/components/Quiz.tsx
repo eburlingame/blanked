@@ -9,7 +9,7 @@ export type QuizProps = {
   quiz: QuizType;
 };
 
-export type QuestionStatus = "correct" | "incorrect" | "skipped" | "unanswered";
+export type QuestionStatus = "correct" | "incorrect" | "unanswered";
 
 const Quiz = ({ quiz }: QuizProps) => {
   const [isComplete, setIsComplete] = useState(false);
@@ -41,16 +41,6 @@ const Quiz = ({ quiz }: QuizProps) => {
       return;
     }
     setCurrentQuestion((prev) => prev - 1);
-  };
-
-  const advanceQuestion = (correct: boolean) => {
-    setQuestionStatus(currentQuestion, correct ? "correct" : "incorrect");
-    nextQuestion();
-  };
-
-  const skipQuestion = () => {
-    setQuestionStatus(currentQuestion, "skipped");
-    nextQuestion();
   };
 
   const onReset = () => {
@@ -98,9 +88,10 @@ const Quiz = ({ quiz }: QuizProps) => {
         </Box>
 
         <Question
+          status={qStatuses[currentQuestion]}
+          onStatusChange={(s) => setQuestionStatus(currentQuestion, s)}
           question={question}
-          onAdvance={advanceQuestion}
-          onNext={skipQuestion}
+          onNext={nextQuestion}
           onPrevious={prevQuestion}
         />
       </>

@@ -28,7 +28,7 @@ export const scoreQuestion = (
 
     if (answer.groupId === undefined) {
       const isCorrect = answerIsCorrect(userAnswer, answer);
-      const closestAnswer = closest(userAnswer, answer.options);
+      const closestAnswer = answerToShow(userAnswer, answer);
 
       scoredAnswers.push({ answer: closestAnswer, isCorrect });
     } else {
@@ -43,14 +43,14 @@ export const scoreQuestion = (
         if (matchingAnswer) {
           groupAnswers.delete(matchingAnswer);
 
-          const closestAnswer = closest(userAnswer, matchingAnswer.options);
+          const closestAnswer = answerToShow(userAnswer, matchingAnswer);
 
           scoredAnswers.push({
             answer: closestAnswer,
             isCorrect: true,
           });
         } else {
-          const closestAnswer = closest(userAnswer, answer.options);
+          const closestAnswer = answerToShow(userAnswer, answer);
 
           scoredAnswers.push({
             answer: closestAnswer,
@@ -64,6 +64,13 @@ export const scoreQuestion = (
   return scoredAnswers;
 };
 
+const answerToShow = (userAnswer: string, answer: QuizAnswerType): string => {
+  if (userAnswer.trim() === "") {
+    return answer.options[0];
+  } else {
+    return closest(userAnswer, answer.options);
+  }
+};
 const answerIsCorrect = (
   userAnswer: string,
   definedAnswer: QuizAnswerType
