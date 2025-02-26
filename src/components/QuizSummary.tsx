@@ -1,4 +1,4 @@
-import { QuizType } from "@/util/parser";
+import { QuestionBankType } from "@/util/parser";
 import {
   Box,
   Button,
@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { QuestionStatus } from "./Quiz";
 
 export type QuizSummaryProps = {
-  quiz: QuizType;
+  quiz: QuestionBankType;
   qStatuses: QuestionStatus[];
   onReset: () => void;
 };

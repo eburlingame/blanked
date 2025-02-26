@@ -1,16 +1,12 @@
 import Layout from "@/components/Layout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useRouter } from "next/router";
 
-const QuizLoader = dynamic(() => import("@/components/QuizLoader"), {
+const BankList = dynamic(() => import("@/components/BankList"), {
   ssr: false,
 });
 
-export default function QuizPage() {
-  const router = useRouter();
-  const quizId = router.query.quizId as string;
-
+export default function Home() {
   return (
     <>
       <Head>
@@ -22,9 +18,8 @@ export default function QuizPage() {
 
       <Layout>
         <main>
-          <QuizLoader quizId={quizId} />
+          <BankList />
         </main>
-        <footer></footer>
       </Layout>
     </>
   );

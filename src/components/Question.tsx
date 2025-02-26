@@ -1,7 +1,7 @@
 import {
   AnswerContents,
   decodeAnswerContents,
-  QuizQuestionType,
+  QuestionType,
 } from "@/util/parser";
 import { ScoredAnswer, scoreQuestion } from "@/util/score";
 import { Box, Button, HStack } from "@chakra-ui/react";
@@ -13,7 +13,7 @@ import { QuestionStatus } from "./Quiz";
 import { Prose } from "./ui/prose";
 
 export type QuestionProps = {
-  question: QuizQuestionType;
+  question: QuestionType;
   status: QuestionStatus;
   onStatusChange: (status: QuestionStatus) => void;
 

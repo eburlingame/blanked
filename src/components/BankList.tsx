@@ -1,8 +1,8 @@
 "use client";
 
-import { importQuiz } from "@/util/import";
-import { QuizType } from "@/util/parser";
-import { removeQuiz, useRecentQuizzes } from "@/util/storage";
+import { QuestionBankType } from "@/state/models";
+import { useListQuestionBanks } from "@/state/queries";
+import { removeQuiz } from "@/util/storage";
 import {
   Box,
   Button,
@@ -14,37 +14,38 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const QuizList = () => {
+const BankLink = () => {
   const router = useRouter();
 
   const [isReloading, setIsReloading] = useState(false);
-  const { quizzes, refetchQuizzes } = useRecentQuizzes();
+  const { data: banks, isLoading } = useListQuestionBanks();
 
-  const onDelete = (quizId: string) => {
-    removeQuiz(quizId);
-    refetchQuizzes();
+  const onDelete = (bankId: string) => {
+    removeQuiz(bankId);
   };
 
-  const onReload = async (quiz: QuizType) => {
+  const onReload = async (bank: QuestionBankType) => {
     setIsReloading(true);
-    await importQuiz(quiz.url);
-    refetchQuizzes();
     setIsReloading(false);
   };
+
+  if (isLoading || !banks) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
       <HStack justifyContent="space-between">
-        <Heading>Your Quizzes</Heading>
+        <Heading>Question Banks</Heading>
         <Button size="xs" onClick={() => router.push("/import")}>
-          Import a Quiz
+          Import Questions
         </Button>
       </HStack>
 
       <VStack mt="4">
-        {quizzes.map((quiz) => (
+        {banks.map((bank) => (
           <HStack
-            key={quiz.id}
+            key={bank.id}
             justifyContent="space-between"
             width="100%"
             p="2"
@@ -57,14 +58,17 @@ const QuizList = () => {
               <Button
                 size="xs"
                 colorPalette="green"
-                onClick={() => router.push(`/quiz/${quiz.id}`)}
+                onClick={() => router.push(`/quiz/${bank.id}`)}
               >
                 Take
               </Button>
 
               <VStack alignItems="flex-start" gap="0" ml="1">
-                <Box>{quiz.name}</Box>
-                <Box fontSize="xs">{new URL(quiz.url).host} - {quiz.questions.length} questions</Box>
+                <Box>{bank.name}</Box>
+                <Box fontSize="xs">
+                  {new URL(bank.originUrl).host} - {bank.questions.length}{" "}
+                  questions
+                </Box>
               </VStack>
             </HStack>
 
@@ -72,7 +76,7 @@ const QuizList = () => {
               <Button
                 size="xs"
                 colorScheme="blue"
-                onClick={() => onReload(quiz)}
+                onClick={() => onReload(bank)}
                 loading={isReloading}
               >
                 Reload
@@ -81,7 +85,7 @@ const QuizList = () => {
               <Button
                 size="xs"
                 colorPalette="red"
-                onClick={() => onDelete(quiz.id)}
+                onClick={() => onDelete(bank.id)}
               >
                 Delete
               </Button>
@@ -93,4 +97,4 @@ const QuizList = () => {
   );
 };
 
-export default QuizList;
+export default BankLink;

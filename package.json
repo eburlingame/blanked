@@ -13,6 +13,8 @@
     "@chakra-ui/react": "^3.8.0",
     "@emotion/react": "^11.14.0",
     "@fontsource/pt-sans": "^5.1.1",
+    "@tanstack/react-query": "^5.66.9",
+    "dexie": "^4.0.11",
     "fastest-levenshtein": "^1.0.16",
     "next": "15.1.7",
     "next-themes": "^0.4.4",
@@ -26,8 +28,10 @@
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
+    "short-uuid": "^5.2.0",
     "slugify": "^1.6.6",
     "unified": "^11.0.5",
+    "uuid": "^11.1.0",
     "yaml": "^2.7.0"
   },
   "devDependencies": {

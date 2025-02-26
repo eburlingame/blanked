@@ -1,4 +1,4 @@
-import { QuizType } from "@/util/parser";
+import { QuestionType } from "@/state/models";
 import { Box, FormatNumber, Heading, HStack, Progress } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -6,18 +6,19 @@ import Question from "./Question";
 import QuizSummary from "./QuizSummary";
 
 export type QuizProps = {
-  quiz: QuizType;
+  name: string;
+  questions: QuestionType[];
 };
 
 export type QuestionStatus = "correct" | "incorrect" | "unanswered";
 
-const Quiz = ({ quiz }: QuizProps) => {
+const Quiz = ({ name, questions }: QuizProps) => {
   const [isComplete, setIsComplete] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const question = quiz.questions[currentQuestion];
+  const question = questions[currentQuestion];
 
   const [qStatuses, setQStatuses] = useState<QuestionStatus[]>(
-    quiz.questions.map(() => "unanswered")
+    questions.map(() => "unanswered")
   );
 
   const setQuestionStatus = (index: number, status: QuestionStatus) => {
@@ -29,7 +30,7 @@ const Quiz = ({ quiz }: QuizProps) => {
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < quiz.questions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((i) => i + 1);
     } else {
       setIsComplete(true);
@@ -46,7 +47,7 @@ const Quiz = ({ quiz }: QuizProps) => {
   const onReset = () => {
     setIsComplete(false);
     setCurrentQuestion(0);
-    setQStatuses(quiz.questions.map(() => "unanswered"));
+    setQStatuses(questions.map(() => "unanswered"));
   };
 
   const numberCorrect = qStatuses.filter(
@@ -64,10 +65,10 @@ const Quiz = ({ quiz }: QuizProps) => {
             colorPalette="blue"
             size="sm"
             value={currentQuestion}
-            max={quiz.questions.length}
+            max={questions.length}
           >
             <Progress.Label mb="2">
-              Question {currentQuestion + 1} of {quiz.questions.length}
+              Question {currentQuestion + 1} of {questions.length}
             </Progress.Label>
             <Progress.Track>
               <Progress.Range />
@@ -96,7 +97,8 @@ const Quiz = ({ quiz }: QuizProps) => {
   };
 
   const renderSummary = () => {
-    return <QuizSummary quiz={quiz} qStatuses={qStatuses} onReset={onReset} />;
+    return <Box>Questions complete!</Box>;
+    // return <QuizSummary quiz={quiz} qStatuses={qStatuses} onReset={onReset} />;
   };
 
   return (
@@ -105,7 +107,7 @@ const Quiz = ({ quiz }: QuizProps) => {
         Home
       </Link>
 
-      <Heading>{quiz.name}</Heading>
+      <Heading>{name}</Heading>
       {isComplete ? renderSummary() : renderQuestion()}
     </Box>
   );

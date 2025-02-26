@@ -1,34 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  AnswerType,
+  NewQuestionBankWithQuestionsType,
+  NewQuestionType,
+} from "@/state/models";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
-import slugify from "slugify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import { parse } from "yaml";
 
-export type QuizType = {
-  id: string;
-  name: string;
-  url: string;
-  description: string;
-  questions: QuizQuestionType[];
-};
-
-export type QuizQuestionType = {
-  markdown: string;
-  answers: QuizAnswerType[];
-};
-
-export type QuizAnswerType = {
-  groupId?: string;
-  options: string[];
-};
-
-export const parseQuiz = async (
+export const parseQuestionBank = async (
   url: string,
   contents: string
-): Promise<QuizType> => {
+): Promise<NewQuestionBankWithQuestionsType> => {
   const splitPattern = /---\n/g;
   const parts = contents.split(splitPattern);
 
@@ -36,10 +22,9 @@ export const parseQuiz = async (
   const questions = await Promise.all(parts.splice(1).map(parseQuestion));
 
   return {
-    id: slugify(frontMatter.name),
     name: frontMatter.name,
     description: frontMatter.description,
-    url,
+    originUrl: url,
     questions,
   };
 };
@@ -61,7 +46,9 @@ const parseFrontMatter = (yamlSection: string) => {
   };
 };
 
-const parseQuestion = async (questionString: string) => {
+const parseQuestion = async (
+  questionString: string
+): Promise<NewQuestionType> => {
   const contents = await unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -79,7 +66,7 @@ const parseQuestion = async (questionString: string) => {
         }
 
         if (node.type === "emphasis") {
-          const answer: QuizAnswerType = {
+          const answer: AnswerType = {
             groupId: file.groupId,
             options: node.children[0].value
               .split("|")

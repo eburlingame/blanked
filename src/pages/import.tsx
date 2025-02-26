@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { importQuiz } from "@/util/import";
+import { useImportMarkdown } from "@/state/import";
 import { Button, Heading, Input } from "@chakra-ui/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -12,13 +12,15 @@ export default function Import() {
   const [isImporting, setIsImporting] = useState(false);
   const [importUrl, setImportUrl] = useState("");
 
+  const { mutateAsync: importQuestions } = useImportMarkdown();
+
   const doImport = async () => {
     try {
       setIsImporting(true);
-      const quiz = await importQuiz(importUrl);
-      router.push(`/quiz/${quiz.id}`);
+      await importQuestions(importUrl);
+      router.push(`/banks`);
     } catch (error) {
-      alert("Error importing quiz: " + error);
+      alert("Error importing items: " + error);
     }
     setIsImporting(false);
   };
@@ -36,12 +38,12 @@ export default function Import() {
         <main>
           <Link href="/">Home</Link>
 
-          <Heading>Import a Quiz</Heading>
+          <Heading>Import Questions from Markdown</Heading>
 
           <Input
             mt="4"
             autoFocus={true}
-            placeholder="Enter the URL of the quiz"
+            placeholder="Enter the URL of the markdown file"
             value={importUrl}
             onChange={(e) => setImportUrl(e.target.value)}
           />
