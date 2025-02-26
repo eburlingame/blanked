@@ -2,6 +2,7 @@ import Dexie, { EntityTable } from "dexie";
 import { generate as shortUuid } from "short-uuid";
 import {
   BlankedBackend,
+  DetailedQuestionBankType,
   NewQuestionBankType,
   NewQuestionType,
   QuestionBankType,
@@ -73,12 +74,19 @@ export class LocalBackend implements BlankedBackend {
     });
   }
 
-  async getQuestionBank(questionBankId: string): Promise<QuestionBankType> {
+  async getQuestionBank(
+    questionBankId: string
+  ): Promise<DetailedQuestionBankType> {
     const qb = await this.db.questionBanks.get(questionBankId);
     if (!qb) {
       throw new Error("Question bank not found");
     }
-    return qb;
+
+    const questions = await this.listQuestionsInBank(qb.id).then(
+      (qs) => qs.length
+    );
+
+    return { ...qb, numberOfQuestions: questions };
   }
 
   async listQuestionsInBank(bankId: string): Promise<QuestionType[]> {
@@ -87,8 +95,14 @@ export class LocalBackend implements BlankedBackend {
       .toArray();
   }
 
-  async listQuestionBanks(): Promise<QuestionBankType[]> {
-    return this.db.questionBanks.toArray();
+  async listQuestionBanks(): Promise<DetailedQuestionBankType[]> {
+    const qbs = await this.db.questionBanks.toArray();
+    const allQuestions = await this.db.questions.toArray();
+
+    return qbs.map((qb) => {
+      const questions = allQuestions.filter((q) => q.questionBankId === qb.id);
+      return { ...qb, numberOfQuestions: questions.length };
+    });
   }
 
   async deleteQuestionBank(questionBankId: string): Promise<void> {

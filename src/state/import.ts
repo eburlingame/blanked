@@ -8,10 +8,14 @@ export const useImportMarkdown = () => {
   const importQuestionBank = async (importUrl: string): Promise<string> => {
     const response = await fetch(importUrl);
     const text = await response.text();
-    const questionBank = await parseQuestionBank(importUrl, text.trim());
+
+    const { questions, ...questionBank } = await parseQuestionBank(
+      importUrl,
+      text.trim()
+    );
 
     const bankId = await backend.addQuestionBank(questionBank);
-    for (const question of questionBank.questions) {
+    for (const question of questions) {
       await backend.addQuestion(bankId, question);
     }
 

@@ -1,3 +1,4 @@
+import HomeButton from "@/components/HomeButton";
 import Layout from "@/components/Layout";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -18,6 +19,7 @@ export default function Home() {
 
       <Layout>
         <main>
+          <HomeButton />
           <BankList />
         </main>
       </Layout>

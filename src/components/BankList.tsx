@@ -1,6 +1,6 @@
 "use client";
 
-import { QuestionBankType } from "@/state/models";
+import { DetailedQuestionBankType } from "@/state/models";
 import { useListQuestionBanks } from "@/state/queries";
 import { removeQuiz } from "@/util/storage";
 import {
@@ -24,7 +24,7 @@ const BankLink = () => {
     removeQuiz(bankId);
   };
 
-  const onReload = async (bank: QuestionBankType) => {
+  const onReload = async (bank: DetailedQuestionBankType) => {
     setIsReloading(true);
     setIsReloading(false);
   };
@@ -37,6 +37,7 @@ const BankLink = () => {
     <>
       <HStack justifyContent="space-between">
         <Heading>Question Banks</Heading>
+
         <Button size="xs" onClick={() => router.push("/import")}>
           Import Questions
         </Button>
@@ -58,15 +59,15 @@ const BankLink = () => {
               <Button
                 size="xs"
                 colorPalette="green"
-                onClick={() => router.push(`/quiz/${bank.id}`)}
+                onClick={() => router.push(`/quiz/bank/${bank.id}`)}
               >
-                Take
+                Review
               </Button>
 
               <VStack alignItems="flex-start" gap="0" ml="1">
                 <Box>{bank.name}</Box>
                 <Box fontSize="xs">
-                  {new URL(bank.originUrl).host} - {bank.questions.length}{" "}
+                  {new URL(bank.originUrl).host} - {bank.numberOfQuestions}{" "}
                   questions
                 </Box>
               </VStack>

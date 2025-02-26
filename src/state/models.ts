@@ -5,6 +5,10 @@ export type QuestionBankType = {
   description: string;
 };
 
+export type DetailedQuestionBankType = QuestionBankType & {
+  numberOfQuestions: number;
+};
+
 export type NewQuestionBankType = Omit<QuestionBankType, "id">;
 
 export type NewQuestionBankWithQuestionsType = NewQuestionBankType & {
@@ -52,9 +56,9 @@ export interface BlankedBackend {
 
   // Question Banks
   addQuestionBank(questionBank: NewQuestionBankType): Promise<string>;
-  getQuestionBank(questionBankId: string): Promise<QuestionBankType>;
+  getQuestionBank(questionBankId: string): Promise<DetailedQuestionBankType>;
+  listQuestionBanks(): Promise<DetailedQuestionBankType[]>;
   listQuestionsInBank(bankId: string): Promise<QuestionType[]>;
-  listQuestionBanks(): Promise<QuestionBankType[]>;
   deleteQuestionBank(questionBankId: string): Promise<void>;
 
   // Study
