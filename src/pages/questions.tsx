@@ -2,11 +2,11 @@ import Layout from "@/components/Layout";
 import { Button, Heading, HStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
-export default function Home() {
+export default function Questions() {
   const router = useRouter();
 
   return (
-    <Layout title="Blanked | Home">
+    <Layout title="Blanked | Questions">
       <Heading mb="2">Home</Heading>
       <HStack>
         <Button onClick={() => router.push("/banks")}>Question Banks</Button>

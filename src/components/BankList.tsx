@@ -1,6 +1,5 @@
 "use client";
 
-import { DetailedQuestionBankType } from "@/state/models";
 import { useListQuestionBanks } from "@/state/queries";
 import { removeQuiz } from "@/util/storage";
 import {
@@ -12,21 +11,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
 
 const BankLink = () => {
   const router = useRouter();
 
-  const [isReloading, setIsReloading] = useState(false);
   const { data: banks, isLoading } = useListQuestionBanks();
 
   const onDelete = (bankId: string) => {
     removeQuiz(bankId);
-  };
-
-  const onReload = async (bank: DetailedQuestionBankType) => {
-    setIsReloading(true);
-    setIsReloading(false);
   };
 
   if (isLoading || !banks) {
@@ -74,15 +66,6 @@ const BankLink = () => {
             </HStack>
 
             <ButtonGroup attached>
-              <Button
-                size="xs"
-                colorScheme="blue"
-                onClick={() => onReload(bank)}
-                loading={isReloading}
-              >
-                Reload
-              </Button>
-
               <Button
                 size="xs"
                 colorPalette="red"
