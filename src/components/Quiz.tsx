@@ -1,9 +1,7 @@
 import { QuestionType } from "@/state/models";
 import { Box, FormatNumber, Heading, HStack, Progress } from "@chakra-ui/react";
-import Link from "next/link";
 import { useState } from "react";
 import Question from "./Question";
-import QuizSummary from "./QuizSummary";
 
 export type QuizProps = {
   name: string;
@@ -103,10 +101,6 @@ const Quiz = ({ name, questions }: QuizProps) => {
 
   return (
     <Box>
-      <Link href="/" style={{ textDecoration: "none" }}>
-        Home
-      </Link>
-
       <Heading>{name}</Heading>
       {isComplete ? renderSummary() : renderQuestion()}
     </Box>

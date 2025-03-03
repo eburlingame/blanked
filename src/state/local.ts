@@ -1,4 +1,5 @@
 import Dexie, { EntityTable } from "dexie";
+import Fuse from "fuse.js";
 import { generate as shortUuid } from "short-uuid";
 import {
   BlankedBackend,
@@ -63,8 +64,17 @@ export class LocalBackend implements BlankedBackend {
     await this.db.questions.delete(questionId);
   }
 
-  async listQuestions(): Promise<QuestionType[]> {
-    return this.db.questions.toArray();
+  async listQuestions(limit: number, offset: number): Promise<QuestionType[]> {
+    return this.db.questions.offset(offset).limit(limit).toArray();
+  }
+
+  async searchQuestions(query: string): Promise<QuestionType[]> {
+    const allQuestions = await this.db.questions.toArray();
+    const fuse = new Fuse<QuestionType>(allQuestions, {
+      keys: ["markdown"],
+    });
+
+    return fuse.search(query).map((r) => r.item);
   }
 
   async addQuestionBank(questionBank: NewQuestionBankType): Promise<string> {

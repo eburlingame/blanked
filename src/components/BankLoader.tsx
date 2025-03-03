@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuestionBank, useQuestionBankWithQuestions } from "@/state/queries";
+import Loadable from "./Loadable";
 import Quiz from "./Quiz";
 
 export type BankLoaderProps = {
@@ -8,18 +9,17 @@ export type BankLoaderProps = {
 };
 
 const BankLoader = ({ bankId }: BankLoaderProps) => {
-  const { data: bank, isLoading: isBankLoading } = useQuestionBank(bankId);
-  const { data: questions, isLoading: isQuestionsLoading } =
-    useQuestionBankWithQuestions(bankId);
-
-  if (isQuestionsLoading || isBankLoading || !questions || !bank) {
-    return <div>Loading...</div>;
-  }
+  const questionBankQuery = useQuestionBank(bankId);
+  const questionsQuery = useQuestionBankWithQuestions(bankId);
 
   return (
-    <>
-      <Quiz name={bank.name} questions={questions} />
-    </>
+    <Loadable query={questionBankQuery}>
+      {(bank) => (
+        <Loadable query={questionsQuery}>
+          {(questions) => <Quiz name={bank.name} questions={questions} />}
+        </Loadable>
+      )}
+    </Loadable>
   );
 };
 

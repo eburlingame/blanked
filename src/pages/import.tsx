@@ -1,7 +1,6 @@
 import Layout from "@/components/Layout";
 import { useImportMarkdown } from "@/state/import";
 import { Button, Heading, Input } from "@chakra-ui/react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -26,7 +25,6 @@ export default function Import() {
 
   return (
     <Layout title="Blanked | Import">
-      <Link href="/">Home</Link>
       <Heading>Import Questions from Markdown</Heading>
 
       <Input

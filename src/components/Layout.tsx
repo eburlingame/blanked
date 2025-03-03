@@ -1,13 +1,21 @@
 import { Box } from "@chakra-ui/react";
 import Head from "next/head";
 import { ReactNode } from "react";
+import HomeButton from "./HomeButton";
 
 export type LayoutProps = {
   title: string;
   children: ReactNode;
+  maxWidth?: string;
+  homeButton?: boolean;
 };
 
-const Layout = ({ title, children }: LayoutProps) => {
+const Layout = ({
+  title,
+  children,
+  maxWidth = "680px",
+  homeButton = true,
+}: LayoutProps) => {
   return (
     <>
       <Head>
@@ -17,7 +25,9 @@ const Layout = ({ title, children }: LayoutProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Box width="100%" maxWidth="680px" mx="auto" px={4} py={8}>
+      <Box width="100%" maxWidth={maxWidth} mx="auto" px={4} py={8}>
+        {homeButton && <HomeButton />}
+
         {children}
       </Box>
     </>

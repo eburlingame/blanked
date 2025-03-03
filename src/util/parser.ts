@@ -116,7 +116,8 @@ const parseQuestion = async (
   }
 
   return {
-    markdown: contents.toString(),
+    markdown: questionString.trim(),
+    parsedMarkdown: contents.toString(),
     answers: (contents as any).answers || [],
   };
 };

@@ -19,6 +19,7 @@ export type QuestionType = {
   id: string;
   questionBankId: string;
   markdown: string;
+  parsedMarkdown: string;
   answers: AnswerType[];
 };
 
@@ -52,7 +53,8 @@ export interface BlankedBackend {
     updates: Partial<NewQuestionType>
   ): Promise<void>;
   deleteQuestion(questionId: string): Promise<void>;
-  listQuestions(): Promise<QuestionType[]>;
+  listQuestions(limit: number, offset: number): Promise<QuestionType[]>;
+  searchQuestions(query: string): Promise<QuestionType[]>;
 
   // Question Banks
   addQuestionBank(questionBank: NewQuestionBankType): Promise<string>;

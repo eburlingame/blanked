@@ -6,7 +6,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <Layout title="Blanked | Home">
+    <Layout title="Blanked | Home" homeButton={false}>
       <Heading mb="2">Home</Heading>
       <HStack>
         <Button onClick={() => router.push("/banks")}>Question Banks</Button>

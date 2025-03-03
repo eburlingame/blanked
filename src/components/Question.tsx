@@ -1,8 +1,5 @@
-import {
-  AnswerContents,
-  decodeAnswerContents,
-  QuestionType,
-} from "@/util/parser";
+import { QuestionType } from "@/state/models";
+import { AnswerContents, decodeAnswerContents } from "@/util/parser";
 import { ScoredAnswer, scoreQuestion } from "@/util/score";
 import { Box, Button, HStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
@@ -145,7 +142,7 @@ const Question = ({
               },
             }}
           >
-            {question.markdown}
+            {question.parsedMarkdown}
           </Markdown>
         </Prose>
       </Box>
