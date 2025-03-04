@@ -37,11 +37,33 @@ export const useQuestionBank = (bankId: string) => {
   });
 };
 
+export const useQuestion = (questionId: string) => {
+  const backend = useBackend();
+
+  return useQuery({
+    queryKey: ["question", questionId],
+    queryFn: () => backend.getQuestion(questionId),
+  });
+};
+
 export const useQuestionBankWithQuestions = (bankId: string) => {
   const backend = useBackend();
 
   return useQuery({
     queryKey: ["questionBankWithQuestions", bankId],
     queryFn: () => backend.listQuestionsInBank(bankId),
+  });
+};
+
+export const useStudySession = (sessionId: string) => {
+  const backend = useBackend();
+
+  return useQuery({
+    queryKey: ["studySession", sessionId],
+    queryFn: async () => {
+      const session = await backend.getStudySession(sessionId);
+      const events = await backend.getStudyEventsInSession(sessionId);
+      return { ...session, events };
+    },
   });
 };

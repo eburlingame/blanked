@@ -2,7 +2,7 @@
 
 import { useQuestionBank, useQuestionBankWithQuestions } from "@/state/queries";
 import Loadable from "./Loadable";
-import Quiz from "./Quiz";
+import Quiz from "./QuizOld";
 
 export type BankLoaderProps = {
   bankId: string;

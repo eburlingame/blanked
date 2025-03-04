@@ -32,17 +32,42 @@ export type AnswerType = {
 
 export type StudySession = {
   id: string;
+  questionIds: string[];
   timeStarted: Date;
   timeEnded: Date | null;
 };
 
+export type NewStudySession = Omit<StudySession, "id">;
+
 export type StudyEvent = {
   id: string;
-  timeAnswered: Date;
   sessionId: string;
+  incorrectAnswerIndexes: number[];
+  timeDisplayed: Date;
+  timeStarted: Date;
+  timeCompleted: Date;
   questionId: string;
-  quality: number;
+  answerQuality: number;
 };
+
+export type NewStudyEvent = Omit<StudyEvent, "id">;
+
+/*
+Answer qualities:
+0: reveal with no attempts
+1: 3 or more attempts
+2: 
+3: all correct on second try
+4: 
+5: all correct on first try
+*/
+
+export enum AnswerQuality {
+  RevealWithNoAttempts = 0,
+  ThreeOrMoreAttempts = 1,
+  AllCorrectOnSecondTry = 3,
+  AllCorrectOnFirstTry = 5,
+}
 
 export interface BlankedBackend {
   // Questions
@@ -64,13 +89,10 @@ export interface BlankedBackend {
   deleteQuestionBank(questionBankId: string): Promise<void>;
 
   // Study
-  startStudySession(timeStarted: Date): Promise<string>;
+  getStudySession(sessionId: string): Promise<StudySession>;
+  getStudyEventsInSession(sessionId: string): Promise<StudyEvent[]>;
+  startStudySession(timeStarted: NewStudySession): Promise<string>;
   endStudySession(sessionId: string, timeEnded: Date): Promise<void>;
-  markQuestion(
-    timeAnswered: Date,
-    sessionId: string,
-    questionId: string,
-    quality: number
-  ): Promise<void>;
+  addStudyEvent(event: NewStudyEvent): Promise<void>;
   listStudySessions(): Promise<StudySession[]>;
 }

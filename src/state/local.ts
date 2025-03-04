@@ -6,6 +6,8 @@ import {
   DetailedQuestionBankType,
   NewQuestionBankType,
   NewQuestionType,
+  NewStudyEvent,
+  NewStudySession,
   QuestionBankType,
   QuestionType,
   StudyEvent,
@@ -119,11 +121,25 @@ export class LocalBackend implements BlankedBackend {
     await this.db.questionBanks.delete(questionBankId);
   }
 
-  async startStudySession(timeStarted: Date): Promise<string> {
+  async getStudySession(sessionId: string): Promise<StudySession> {
+    const session = await this.db.studySessions.get(sessionId);
+    if (!session) {
+      throw new Error("Study session not found");
+    }
+
+    return session;
+  }
+
+  async getStudyEventsInSession(sessionId: string): Promise<StudyEvent[]> {
+    return this.db.studyEvents
+      .filter((e) => e.sessionId === sessionId)
+      .toArray();
+  }
+
+  async startStudySession(newSession: NewStudySession): Promise<string> {
     return this.db.studySessions.add({
+      ...newSession,
       id: shortUuid(),
-      timeStarted,
-      timeEnded: null,
     });
   }
 
@@ -140,18 +156,10 @@ export class LocalBackend implements BlankedBackend {
     return this.db.studySessions.toArray();
   }
 
-  async markQuestion(
-    timeAnswered: Date,
-    sessionId: string,
-    questionId: string,
-    quality: number
-  ): Promise<void> {
+  async addStudyEvent(event: NewStudyEvent): Promise<void> {
     await this.db.studyEvents.add({
+      ...event,
       id: shortUuid(),
-      timeAnswered,
-      sessionId,
-      questionId,
-      quality,
     });
   }
 }

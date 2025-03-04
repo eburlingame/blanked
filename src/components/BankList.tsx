@@ -1,6 +1,7 @@
 "use client";
 
 import { useListQuestionBanks } from "@/state/queries";
+import { useStartBankStudySession } from "@/state/session";
 import { removeQuiz } from "@/util/storage";
 import {
   Box,
@@ -19,6 +20,12 @@ const BankLink = () => {
 
   const onDelete = (bankId: string) => {
     removeQuiz(bankId);
+  };
+
+  const { onReview } = useStartBankStudySession();
+  const startReview = async (bankId: string) => {
+    const sessionId = await onReview(bankId);
+    router.push(`/quiz/session/${sessionId}`);
   };
 
   if (isLoading || !banks) {
@@ -51,7 +58,7 @@ const BankLink = () => {
               <Button
                 size="xs"
                 colorPalette="green"
-                onClick={() => router.push(`/quiz/bank/${bank.id}`)}
+                onClick={() => startReview(bank.id)}
               >
                 Review
               </Button>

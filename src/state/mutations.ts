@@ -1,5 +1,6 @@
 import { useBackend } from "@/components/BackendBootstrapper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { NewStudySession } from "./models";
 
 export const useUpdateQuestion = (questionId: string) => {
   const backend = useBackend();
@@ -13,6 +14,29 @@ export const useUpdateQuestion = (questionId: string) => {
       queryClient.invalidateQueries({ queryKey: ["getQuestion", questionId] });
       queryClient.invalidateQueries({ queryKey: ["listQuestions"] });
       queryClient.invalidateQueries({ queryKey: ["questionsSearch"] });
+    },
+  });
+};
+
+export const useStartStudySession = () => {
+  const backend = useBackend();
+  const queryClient = useQueryClient();
+
+  const startStudySession = async (questionIds: string[]) => {
+    const session: NewStudySession = {
+      questionIds,
+      timeStarted: new Date(),
+      timeEnded: null,
+    };
+
+    return backend.startStudySession(session);
+  };
+
+  return useMutation({
+    mutationKey: ["startStudySession"],
+    mutationFn: startStudySession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: "studySessions" });
     },
   });
 };

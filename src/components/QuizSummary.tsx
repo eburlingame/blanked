@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { QuestionStatus } from "./Quiz";
+import { QuestionStatus } from "./QuizOld";
 
 export type QuizSummaryProps = {
   quiz: QuestionBankType;
