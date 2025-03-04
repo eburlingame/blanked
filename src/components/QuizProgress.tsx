@@ -4,12 +4,14 @@ export type QuizProgressProps = {
   questionsCompleted: number;
   totalQuestions: number;
   numberCorrect: number;
+  numberNeedsReview: number;
 };
 
 const QuizProgress = ({
   questionsCompleted,
   totalQuestions,
   numberCorrect,
+  numberNeedsReview,
 }: QuizProgressProps) => {
   return (
     <Box mt="2">
@@ -29,9 +31,14 @@ const QuizProgress = ({
         <HStack mt="2" pt="0" justify={"space-between"}>
           <Progress.ValueText />
 
-          <Progress.ValueText color="green.400">
-            <FormatNumber value={numberCorrect} /> correct
-          </Progress.ValueText>
+          <HStack>
+            <Progress.ValueText color="green.400">
+              <FormatNumber value={numberCorrect} /> correct
+            </Progress.ValueText>
+            <Progress.ValueText color="blue.400">
+              <FormatNumber value={numberNeedsReview} /> need review
+            </Progress.ValueText>
+          </HStack>
         </HStack>
       </Progress.Root>
     </Box>

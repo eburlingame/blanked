@@ -33,6 +33,14 @@ const QuizSequencer = ({ session }: QuizSequencerProps) => {
     [session.events]
   );
 
+  const needsReviewQuestions = useMemo(
+    () =>
+      new Set(session.events.map((e) => e.questionId)).difference(
+        correctQuestions
+      ),
+    [session.events, correctQuestions]
+  );
+
   const questionsToStudy = useMemo(
     () => new Set(session.questionIds).difference(correctQuestions),
     [session.questionIds, correctQuestions]
@@ -73,6 +81,7 @@ const QuizSequencer = ({ session }: QuizSequencerProps) => {
         questionsCompleted={session.events.length}
         totalQuestions={session.events.length + questionsToStudy.size}
         numberCorrect={correctQuestions.size}
+        numberNeedsReview={needsReviewQuestions.size}
       />
 
       {question && (
