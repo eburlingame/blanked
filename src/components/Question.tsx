@@ -1,18 +1,20 @@
 import { AnswerQuality, QuestionType } from "@/state/models";
 import { ScoredAnswer, scoreQuestion } from "@/util/score";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import QuestionBody from "./QuestionBody";
 
 export type QuestionProps = {
   question: QuestionType;
-  onSubmit: (quality: AnswerQuality, responses: string[]) => void;
+  onSubmit: (quality: AnswerQuality, incorrectIndex: number[]) => void;
+  onStart: () => void;
 };
 
 export type QuestionStatus = "start" | "submitted" | "revealed" | "correct";
 
-const Question = ({ question, onSubmit }: QuestionProps) => {
+const Question = ({ question, onSubmit, onStart }: QuestionProps) => {
   const userAnswers = useRef<string[]>(question.answers.map(() => ""));
 
+  const [isStarted, setIsStarted] = useState(false);
   const [status, setStatus] = useState<QuestionStatus>("start");
   const [attempts, setAttempts] = useState(0);
 
@@ -20,7 +22,16 @@ const Question = ({ question, onSubmit }: QuestionProps) => {
     null
   );
 
+  const [firstIncorrectIndexes, setFirstIncorrectIndexes] = useState<number[]>(
+    []
+  );
+
   const setAnswer = (answerIndex: number, value: string) => {
+    if (!isStarted) {
+      setIsStarted(true);
+      onStart();
+    }
+
     userAnswers.current = userAnswers.current.map((a, i) => {
       if (i === answerIndex) {
         return value;
@@ -39,12 +50,27 @@ const Question = ({ question, onSubmit }: QuestionProps) => {
     setStatus("revealed");
   };
 
-  console.log(status, attempts);
+  const reset = () => {
+    setStatus("start");
+    setAttempts(0);
+    setScoredAnswer(null);
+    setFirstIncorrectIndexes([]);
+  };
 
-  const onQuestionSubmit = () => {
+  useEffect(() => {
+    reset();
+  }, [question.id]);
+
+  const onQuestionSubmit = (markCorrect: boolean) => {
     const scored = scoreResponses();
     const allCorrect = scored.every((a) => a.isCorrect);
     const allBlank = userAnswers.current.every((a) => a.trim() === "");
+
+    if (markCorrect) {
+      setStatus("correct");
+      onSubmit(AnswerQuality.AllCorrectOnFirstTry, []);
+      return;
+    }
 
     if (allBlank) {
       onReveal();
@@ -52,15 +78,21 @@ const Question = ({ question, onSubmit }: QuestionProps) => {
       setStatus("correct");
 
       if (status === "start") {
-        onSubmit(AnswerQuality.AllCorrectOnFirstTry, userAnswers.current);
+        onSubmit(AnswerQuality.AllCorrectOnFirstTry, firstIncorrectIndexes);
       } else {
         if (attempts === 1) {
-          onSubmit(AnswerQuality.AllCorrectOnSecondTry, userAnswers.current);
+          onSubmit(AnswerQuality.AllCorrectOnSecondTry, firstIncorrectIndexes);
         } else {
-          onSubmit(AnswerQuality.ThreeOrMoreAttempts, userAnswers.current);
+          onSubmit(AnswerQuality.ThreeOrMoreAttempts, firstIncorrectIndexes);
         }
       }
     } else {
+      setFirstIncorrectIndexes(
+        scored
+          .map((a, i) => (a.isCorrect ? null : i))
+          .filter((i) => i !== null) as number[]
+      );
+
       if (status === "start") {
         setAttempts(1);
         setStatus("submitted");
@@ -82,7 +114,8 @@ const Question = ({ question, onSubmit }: QuestionProps) => {
       onSetAnswer={setAnswer}
       focusedAnswerIndex={focusedAnswerIndex}
       scoredAnswers={scoredAnswers}
-      onSubmit={onQuestionSubmit}
+      onSubmit={() => onQuestionSubmit(false)}
+      onSubmitAndMarkCorrect={() => onQuestionSubmit(true)}
       onReveal={onReveal}
     />
   );

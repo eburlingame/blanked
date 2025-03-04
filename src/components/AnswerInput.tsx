@@ -47,11 +47,12 @@ const AnswerInput = ({
 
   const showInput =
     status === "unanswered" || status === "incorrect" || status === "revealed";
+
   const showAnswer = status === "revealed" || status === "correct";
 
   return (
     <Span display="inline-block" alignItems="center">
-      <VStack>
+      <VStack gap={0}>
         {showAnswer && (
           <Box ml="1" color="green.400">
             {answer}

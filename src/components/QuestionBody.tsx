@@ -15,6 +15,7 @@ export type QuestionBodyProps = {
   focusedAnswerIndex: number;
   scoredAnswers: ScoredAnswer[] | null;
   onSubmit: () => void;
+  onSubmitAndMarkCorrect: () => void;
   onReveal: () => void;
   onSetAnswer: (answerIndex: number, value: string) => void;
 };
@@ -35,6 +36,7 @@ const QuestionBody = ({
   scoredAnswers,
   onReveal,
   onSubmit,
+  onSubmitAndMarkCorrect,
   onSetAnswer,
 }: QuestionBodyProps) => {
   const answerStatus = (index: number) => {
@@ -101,6 +103,10 @@ const QuestionBody = ({
 
         <Button colorPalette="green" onClick={onSubmit}>
           Submit
+        </Button>
+
+        <Button colorPalette="green" onClick={onSubmitAndMarkCorrect}>
+          Submit and Mark Correct
         </Button>
       </HStack>
     </Box>

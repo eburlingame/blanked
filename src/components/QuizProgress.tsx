@@ -1,13 +1,13 @@
 import { Box, FormatNumber, HStack, Progress } from "@chakra-ui/react";
 
 export type QuizProgressProps = {
-  currentQuestionIndex: number;
+  questionsCompleted: number;
   totalQuestions: number;
   numberCorrect: number;
 };
 
 const QuizProgress = ({
-  currentQuestionIndex,
+  questionsCompleted,
   totalQuestions,
   numberCorrect,
 }: QuizProgressProps) => {
@@ -16,11 +16,11 @@ const QuizProgress = ({
       <Progress.Root
         colorPalette="blue"
         size="sm"
-        value={currentQuestionIndex}
+        value={questionsCompleted}
         max={totalQuestions}
       >
         <Progress.Label mb="2">
-          Question {currentQuestionIndex + 1} of {totalQuestions}
+          Question {questionsCompleted} of {totalQuestions}
         </Progress.Label>
         <Progress.Track>
           <Progress.Range />

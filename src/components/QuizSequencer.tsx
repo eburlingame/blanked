@@ -4,40 +4,80 @@ import { VStack } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import Question from "./Question";
 import QuizProgress from "./QuizProgress";
+import { useAddStudyEvent } from "@/state/mutations";
 
 export type QuizSequencerProps = {
   session: StudySession & { events: StudyEvent[] };
 };
 
-const QuizSequencer = ({ session }: QuizSequencerProps) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+const pickRandomQuestion = (questionIds: string[]) => {
+  const nextInt = Math.floor(Math.random() * questionIds.length);
+  return questionIds[nextInt];
+};
 
-  const completedQuestions = useMemo(
-    () => new Set(session.events.map((e) => e.questionId)),
+const QuizSequencer = ({ session }: QuizSequencerProps) => {
+  const [currentQuestionId, setCurrentQuestionId] = useState(
+    pickRandomQuestion(session.questionIds)
+  );
+
+  const [timeDisplayed, setTimeDisplayed] = useState(new Date());
+  const [timeStarted, setTimeStarted] = useState(new Date());
+
+  const correctQuestions = useMemo(
+    () =>
+      new Set(
+        session.events
+          .filter((e) => e.answerQuality >= AnswerQuality.AllCorrectOnSecondTry)
+          .map((e) => e.questionId)
+      ),
     [session.events]
   );
 
-  const currentQuestionId = session.questionIds[currentQuestionIndex];
+  const questionsToStudy = useMemo(
+    () => new Set(session.questionIds).difference(correctQuestions),
+    [session.questionIds, correctQuestions]
+  );
 
   const { data: question } = useQuestion(currentQuestionId);
 
   const advanceQuestion = () => {
-    setCurrentQuestionIndex((prev) => prev + 1);
+    setCurrentQuestionId(pickRandomQuestion(Array.from(questionsToStudy)));
+    setTimeDisplayed(new Date());
   };
 
-  const onSubmit = async (quality: AnswerQuality, values: string[]) => {
-    advanceQuestion();
+  const { mutateAsync: addStudyEvent } = useAddStudyEvent();
+
+  const onSubmit = async (quality: AnswerQuality, incorrectIndex: number[]) => {
+    console.log("Submitting", quality, incorrectIndex);
+
+    await addStudyEvent({
+      sessionId: session.id,
+      incorrectAnswerIndexes: incorrectIndex,
+      timeDisplayed: timeDisplayed,
+      timeStarted: timeStarted,
+      timeCompleted: new Date(),
+      questionId: currentQuestionId,
+      answerQuality: quality,
+    });
+
+    setTimeout(advanceQuestion, 750);
+  };
+
+  const onStart = () => {
+    setTimeStarted(new Date());
   };
 
   return (
     <VStack align="stretch">
       <QuizProgress
-        currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={session.questionIds.length}
-        numberCorrect={0}
+        questionsCompleted={session.events.length}
+        totalQuestions={session.events.length + questionsToStudy.size}
+        numberCorrect={correctQuestions.size}
       />
 
-      {question && <Question question={question} onSubmit={onSubmit} />}
+      {question && (
+        <Question question={question} onSubmit={onSubmit} onStart={onStart} />
+      )}
     </VStack>
   );
 };
