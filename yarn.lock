@@ -2502,6 +2502,11 @@ devlop@^1.0.0, devlop@^1.1.0:
   dependencies:
     dequal "^2.0.0"
 
+dexie-export-import@^4.1.4:
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/dexie-export-import/-/dexie-export-import-4.1.4.tgz#b08da915521e0fdcbe6a66f381323a271fd02ff4"
+  integrity sha512-3bw171qUuOTWSYLXI7C/0M6p1X65Rho3tu1IvD9By8jn0+3t3dLSkDlZ1BC6MbABl3kRlhtGigzC+SF+qcS5Og==
+
 dexie@^4.0.11:
   version "4.0.11"
   resolved "https://registry.yarnpkg.com/dexie/-/dexie-4.0.11.tgz#010a2c82dd35d40aa9a81c8d21951bfeb487b7d6"

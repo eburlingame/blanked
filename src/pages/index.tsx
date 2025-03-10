@@ -1,8 +1,12 @@
 import Layout from "@/components/Layout";
-import ReviewButton from "@/components/ReviewButton";
 import { Button, Heading, HStack } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { LuAppWindow, LuQuote, LuWalletCards } from "react-icons/lu";
+import { LuDownload, LuQuote, LuWalletCards } from "react-icons/lu";
+
+const ReviewButton = dynamic(() => import("@/components/ReviewButton"), {
+  ssr: false,
+});
 
 export default function Home() {
   const router = useRouter();
@@ -20,9 +24,13 @@ export default function Home() {
           <LuQuote />
           Questions
         </Button>
-        <Button flex="1" onClick={() => router.push("/sessions")}>
+        {/* <Button flex="1" onClick={() => router.push("/sessions")}>
           <LuAppWindow />
           Sessions
+        </Button> */}
+        <Button flex="1" onClick={() => router.push("/export")}>
+          <LuDownload />
+          Export
         </Button>
       </HStack>
 

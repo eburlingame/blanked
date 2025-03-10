@@ -2,6 +2,7 @@ import { parseQuestion } from "@/util/parser";
 import { getNextStudyDate } from "@/util/review";
 import { isBefore, isEqual, parse } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
+import { exportDB, importInto } from "dexie-export-import";
 import Fuse from "fuse.js";
 import { generate as shortUuid } from "short-uuid";
 import {
@@ -227,5 +228,13 @@ export class LocalBackend implements BlankedBackend {
       .map(({ id }) => id);
 
     return questionsForReview;
+  }
+
+  async exportData(): Promise<Blob> {
+    return exportDB(this.db);
+  }
+
+  async importData(blob: Blob): Promise<void> {
+    importInto(this.db, blob, { overwriteValues: true });
   }
 }

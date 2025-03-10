@@ -45,7 +45,7 @@ const BankLink = () => {
 
   return (
     <>
-      <HStack justifyContent="space-between">
+      <HStack justifyContent="space-between" p="2">
         <Heading>Question Banks</Heading>
 
         <Button size="xs" onClick={() => router.push("/import")}>
