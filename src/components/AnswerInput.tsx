@@ -1,5 +1,5 @@
 import { AnswerContents } from "@/util/parser";
-import { Box, HStack, Input, Span, VStack } from "@chakra-ui/react";
+import { Box, Input, Span, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 
 export type AnswerInputProps = {
