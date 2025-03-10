@@ -19,7 +19,7 @@ const ImportExport = () => {
     downloadBlob(data);
   };
 
-  const onImport = async () => {
+  const doImport = async () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".json";
@@ -38,6 +38,16 @@ const ImportExport = () => {
       reader.readAsArrayBuffer(file);
     };
     fileInput.click();
+  };
+
+  const onImport = async () => {
+    const confirm = window.confirm(
+      "This will overwrite your current database. Are you sure you want to continue?"
+    );
+
+    if (confirm) {
+      await doImport();
+    }
   };
 
   return (

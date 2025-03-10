@@ -29,10 +29,10 @@ export default function Home() {
           <LuQuote />
           Questions
         </Button>
-        <Button flex="1" onClick={() => router.push("/sessions")}>
+        {/* <Button flex="1" onClick={() => router.push("/sessions")}>
           <LuAppWindow />
           Sessions
-        </Button>
+        </Button> */}
         <Button flex="1" onClick={() => router.push("/export")}>
           <LuDownload />
           Export
