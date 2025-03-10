@@ -18,6 +18,24 @@ export const useUpdateQuestion = (questionId: string) => {
   });
 };
 
+export const useDeleteQuestionBank = () => {
+  const backend = useBackend();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["deleteQuestionBank"],
+    mutationFn: ({ questionBankId }: { questionBankId: string }) =>
+      backend.deleteQuestionBank(questionBankId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getQuestion"] });
+      queryClient.invalidateQueries({ queryKey: ["listQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["questionsSearch"] });
+      queryClient.invalidateQueries({ queryKey: ["listQuestionBanks"] });
+    },
+  });
+};
+
 export const useStartStudySession = () => {
   const backend = useBackend();
   const queryClient = useQueryClient();

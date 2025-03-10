@@ -102,5 +102,5 @@ export interface BlankedBackend {
   listStudySessions(): Promise<StudySession[]>;
 
   // Review
-  getQuestionsForReview(): Promise<string[]>;
+  getQuestionsForReview(dateStr: string): Promise<string[]>;
 }

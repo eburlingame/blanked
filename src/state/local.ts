@@ -15,7 +15,7 @@ import {
   StudySession,
   StudySessionWithEvents,
 } from "./models";
-import { isBefore } from "date-fns";
+import { isBefore, parse } from "date-fns";
 
 export type AppDB = Dexie & {
   questions: EntityTable<QuestionType, "id">;
@@ -34,7 +34,7 @@ export class LocalBackend implements BlankedBackend {
       questions: "id",
       questionBanks: "id",
       studySessions: "id",
-      studyEvents: "id",
+      studyEvents: "id,questionId",
     });
   }
   async getQuestion(questionId: string): Promise<QuestionType> {
@@ -79,6 +79,7 @@ export class LocalBackend implements BlankedBackend {
 
   async deleteQuestion(questionId: string): Promise<void> {
     await this.db.questions.delete(questionId);
+    await this.db.studyEvents.where("questionId").equals(questionId).delete();
   }
 
   async listQuestions(limit: number, offset: number): Promise<QuestionType[]> {
@@ -133,6 +134,11 @@ export class LocalBackend implements BlankedBackend {
   }
 
   async deleteQuestionBank(questionBankId: string): Promise<void> {
+    const questions = await this.listQuestionsInBank(questionBankId);
+    for (const question of questions) {
+      await this.deleteQuestion(question.id);
+    }
+
     await this.db.questionBanks.delete(questionBankId);
   }
 
@@ -189,8 +195,11 @@ export class LocalBackend implements BlankedBackend {
     });
   }
 
-  async getQuestionsForReview(): Promise<string[]> {
+  async getQuestionsForReview(dateStr: string): Promise<string[]> {
+    const studyDate = parse(dateStr, "yyyy-MM-dd", new Date());
+
     const allEvents = await this.db.studyEvents.toArray();
+    const allQuestions = await this.db.questions.toArray();
 
     const eventsByQuestion = allEvents.reduce(
       (acc: Record<string, StudyEvent[]>, event) => {
@@ -203,17 +212,17 @@ export class LocalBackend implements BlankedBackend {
       {}
     );
 
-    const questionsForReview = Object.keys(eventsByQuestion).filter(
-      (questionId) => {
-        const events = eventsByQuestion[questionId];
-        const nextStudyDate = getNextStudyDate(events);
+    const questionsForReview = allQuestions
+      .filter((q) => {
+        const events = eventsByQuestion[q.id];
+        const nextStudyDate = getNextStudyDate(studyDate, events);
 
-        if (isBefore(nextStudyDate, new Date())) {
+        if (isBefore(nextStudyDate, studyDate)) {
           return true;
         }
         return false;
-      }
-    );
+      })
+      .map(({ id }) => id);
 
     return questionsForReview;
   }

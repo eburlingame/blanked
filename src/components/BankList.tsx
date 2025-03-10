@@ -1,8 +1,8 @@
 "use client";
 
+import { useDeleteQuestionBank } from "@/state/mutations";
 import { useListQuestionBanks } from "@/state/queries";
 import { useStartBankStudySession } from "@/state/session";
-import { removeQuiz } from "@/util/storage";
 import {
   Box,
   Button,
@@ -17,9 +17,16 @@ const BankLink = () => {
   const router = useRouter();
 
   const { data: banks, isLoading } = useListQuestionBanks();
+  const { mutateAsync: deleteQuestionBank } = useDeleteQuestionBank();
 
-  const onDelete = (bankId: string) => {
-    removeQuiz(bankId);
+  const onDelete = async (bankId: string) => {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this question bank?"
+    );
+
+    if (confirmDelete) {
+      await deleteQuestionBank({ questionBankId: bankId });
+    }
   };
 
   const { onReview } = useStartBankStudySession();

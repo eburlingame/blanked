@@ -5,7 +5,7 @@ export const useListQuestionBanks = () => {
   const backend = useBackend();
 
   return useQuery({
-    queryKey: ["questionBanks"],
+    queryKey: ["listQuestionBanks"],
     queryFn: () => backend.listQuestionBanks(),
   });
 };
@@ -73,11 +73,11 @@ export const useStudySession = (sessionId: string) => {
   });
 };
 
-export const useQuestionsForReview = () => {
+export const useQuestionsForReview = (dateStr: string) => {
   const backend = useBackend();
 
   return useQuery({
     queryKey: ["useQuestionsForReview"],
-    queryFn: async () => backend.getQuestionsForReview(),
+    queryFn: async () => backend.getQuestionsForReview(dateStr),
   });
 };

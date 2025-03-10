@@ -1,84 +1,95 @@
 import { StudyEvent } from "@/state/models";
-import { add, startOfToday } from "date-fns";
+import { add, formatDate, parse, startOfDay } from "date-fns";
+import groupBy from "lodash.groupby";
 
 const learningPeriod = 3; // first 3 iterations
 
-type EventAcc = {
-  interval: number;
-  lastInterval: number | null;
-  eFactor: number;
-  lastEFactor: number | null;
+const incrementEFactor = (prevEf: number, quality: number) => {
+  return Math.max(
+    1.3,
+    prevEf - 0.8 + 0.28 * quality - 0.02 * quality * quality
+  );
 };
 
-export const getStudyInterval = (events: StudyEvent[]) => {
-  const { interval } = events.reduce(
-    (acc: EventAcc, event) => {
-      const answerQuality = event.answerQuality;
-      if (answerQuality < 3) {
-        return acc;
+const computeInterval = (lastInterval: number, eFactor: number) => {
+  return Math.round(lastInterval * eFactor) > 0
+    ? Math.round(lastInterval * eFactor)
+    : 1;
+};
+
+type EventAcc = {
+  interval: number;
+  eFactor: number;
+};
+
+type DayAndQuality = {
+  day: string;
+  lowestQuality: number;
+};
+
+const initialInterval: EventAcc = {
+  interval: 1,
+  eFactor: 2.5,
+};
+
+export const getStudyInterval = (days: DayAndQuality[]) => {
+  const { interval } = days.reduce(
+    (acc: EventAcc, day: DayAndQuality, index: number) => {
+      const answerQuality = day.lowestQuality;
+      if (answerQuality < 3 || index < learningPeriod) {
+        return initialInterval;
       }
 
-      const lastInterval = acc.lastInterval ?? 1;
-      const lastEFactor = acc.lastEFactor ?? 2.5;
-
-      let interval = 0;
-      let eFactor = 0;
-
-      if (answerQuality < learningPeriod) {
-        interval = 1;
-        eFactor = 2.5;
-      } else {
-        interval =
-          Math.round(lastInterval * lastEFactor) > 0
-            ? Math.round(lastInterval * lastEFactor)
-            : 1;
-        eFactor = Math.max(
-          lastEFactor +
-            0.1 -
-            (5 - answerQuality) * (0.08 + (5 - answerQuality) * 0.02),
-          1.3
-        );
-      }
+      const lastInterval = acc.interval ?? 1;
+      const lastEFactor = acc.eFactor ?? 2.5;
 
       return {
-        interval,
-        lastInterval: interval,
-        eFactor,
-        lastEFactor: eFactor,
+        interval: computeInterval(lastInterval, lastEFactor),
+        eFactor: incrementEFactor(lastEFactor, answerQuality),
       };
     },
-    {
-      interval: 1,
-      lastInterval: null,
-      eFactor: 2.5,
-      lastEFactor: null,
-    }
+    initialInterval
   );
 
   return interval;
 };
 
-export const getLastStudyDate = (events: StudyEvent[]) => {
-  const maxDate = new Date(
-    Math.max(...events.map((event) => event.timeCompleted.getTime()))
+const DAY_FORMAT = "yyyy-MM-dd";
+
+export const getLowestQualityPerDay = (
+  events: StudyEvent[]
+): DayAndQuality[] => {
+  const eventsByDay = groupBy(events, (event) =>
+    formatDate(event.timeCompleted, DAY_FORMAT)
   );
 
-  const lastEvent = events.find((event) => event.timeCompleted === maxDate);
-  if (!lastEvent) {
+  return Object.entries(eventsByDay).map(([day, events]) => {
+    return {
+      day,
+      lowestQuality: Math.min(...events.map((event) => event.answerQuality)),
+    };
+  });
+};
+
+export const getLastStudyDate = (events: DayAndQuality[]): Date | null => {
+  if (!events || events.length === 0) {
     return null;
   }
 
-  return new Date(lastEvent.timeCompleted);
+  const dates = events.map((e) => parse(e.day, DAY_FORMAT, new Date()));
+  dates.sort((a, b) => b.getTime() - a.getTime());
+
+  return dates[0];
 };
 
-export const getNextStudyDate = (events: StudyEvent[]) => {
-  const interval = getStudyInterval(events);
-  console.log(interval);
+export const getNextStudyDate = (date: Date, events: StudyEvent[]) => {
+  const days = getLowestQualityPerDay(events);
+  const interval = getStudyInterval(days);
+  const lastEvent = getLastStudyDate(days);
 
-  const lastEvent = getLastStudyDate(events);
   if (!lastEvent) {
-    return startOfToday();
+    return startOfDay(date);
   }
 
-  return add(lastEvent, { days: interval });
+  return startOfDay(add(lastEvent, { days: interval }));
 };
