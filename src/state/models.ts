@@ -100,4 +100,8 @@ export interface BlankedBackend {
 
   // Review
   getQuestionsForReview(dateStr: string): Promise<string[]>;
+
+  // Import/Export
+  exportData(): Promise<Blob>;
+  importData(blob: Blob): Promise<void>;
 }
