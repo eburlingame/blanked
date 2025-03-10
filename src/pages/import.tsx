@@ -1,8 +1,6 @@
 import Layout from "@/components/Layout";
-import { importQuiz } from "@/util/import";
-import { Button, Heading, Input } from "@chakra-ui/react";
-import Head from "next/head";
-import Link from "next/link";
+import { useImportMarkdown } from "@/state/import";
+import { Button, Heading, Input, Tabs, Textarea } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -12,44 +10,93 @@ export default function Import() {
   const [isImporting, setIsImporting] = useState(false);
   const [importUrl, setImportUrl] = useState("");
 
-  const doImport = async () => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [contents, setContents] = useState("");
+
+  const { mutateAsync: importQuestions } = useImportMarkdown();
+
+  const onImportWithUrl = async () => {
     try {
       setIsImporting(true);
-      const quiz = await importQuiz(importUrl);
-      router.push(`/quiz/${quiz.id}`);
+      const response = await fetch(importUrl);
+      const contents = await response.text();
+
+      await importQuestions({ contents, url: importUrl });
+      router.push(`/banks`);
     } catch (error) {
-      alert("Error importing quiz: " + error);
+      alert("Error importing items: " + error);
+    }
+    setIsImporting(false);
+  };
+
+  const onImport = async () => {
+    try {
+      setIsImporting(true);
+      const fullContents =
+        `\nname: "${title}"\ndescription: "${description}"\n---\n${contents}`.trim();
+
+      await importQuestions({ contents: fullContents, url: null });
+      router.push(`/banks`);
+    } catch (error) {
+      alert("Error importing items: " + error);
     }
     setIsImporting(false);
   };
 
   return (
-    <>
-      <Head>
-        <title>Blanked</title>
-        <meta name="description" content="Fill in the blank study app" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout title="Blanked | Import">
+      <Heading>Import Questions</Heading>
 
-      <Layout>
-        <main>
-          <Link href="/">Home</Link>
+      <Tabs.Root defaultValue="raw">
+        <Tabs.List>
+          <Tabs.Trigger value="raw">Import from text</Tabs.Trigger>
+          <Tabs.Trigger value="url">Import from URL</Tabs.Trigger>
+          <Tabs.Indicator />
+        </Tabs.List>
 
-          <Heading>Import a Quiz</Heading>
-
+        <Tabs.Content value="raw">
           <Input
-            mt="4"
             autoFocus={true}
-            placeholder="Enter the URL of the quiz"
+            placeholder="Question bank name"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Input
+            placeholder="Question bank description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            mt="2"
+            mb="2"
+            width="100%"
+          />
+
+          <Textarea
+            placeholder="Paste your markdown here"
+            value={contents}
+            onChange={(e) => setContents(e.target.value)}
+            rows={10}
+            width="100%"
+          />
+
+          <Button mt="2" onClick={onImport} loading={isImporting}>
+            Import
+          </Button>
+        </Tabs.Content>
+
+        <Tabs.Content value="url">
+          <Input
+            autoFocus={true}
+            placeholder="Enter the URL of the markdown file"
             value={importUrl}
             onChange={(e) => setImportUrl(e.target.value)}
           />
-          <Button mt="2" onClick={doImport} loading={isImporting}>
+
+          <Button mt="2" onClick={onImportWithUrl} loading={isImporting}>
             Import
           </Button>
-        </main>
-      </Layout>
-    </>
+        </Tabs.Content>
+      </Tabs.Root>
+    </Layout>
   );
 }

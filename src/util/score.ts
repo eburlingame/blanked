@@ -1,5 +1,5 @@
+import { AnswerType, QuestionType } from "@/state/models";
 import { closest } from "fastest-levenshtein";
-import { QuizAnswerType, QuizQuestionType } from "./parser";
 
 export type ScoredAnswer = {
   answer: string;
@@ -7,12 +7,12 @@ export type ScoredAnswer = {
 };
 
 export const scoreQuestion = (
-  question: QuizQuestionType,
+  question: QuestionType,
   answers: string[]
 ): ScoredAnswer[] => {
   const scoredAnswers: ScoredAnswer[] = [];
 
-  const groupMap = new Map<string, Set<QuizAnswerType>>();
+  const groupMap = new Map<string, Set<AnswerType>>();
   question.answers.forEach((a) => {
     if (a.groupId !== undefined) {
       if (groupMap.has(a.groupId)) {
@@ -64,7 +64,7 @@ export const scoreQuestion = (
   return scoredAnswers;
 };
 
-const answerToShow = (userAnswer: string, answer: QuizAnswerType): string => {
+const answerToShow = (userAnswer: string, answer: AnswerType): string => {
   if (userAnswer.trim() === "") {
     return answer.options[0];
   } else {
@@ -73,7 +73,7 @@ const answerToShow = (userAnswer: string, answer: QuizAnswerType): string => {
 };
 const answerIsCorrect = (
   userAnswer: string,
-  definedAnswer: QuizAnswerType
+  definedAnswer: AnswerType
 ): boolean =>
   definedAnswer.options.some((option) => {
     return userAnswer.toLowerCase().trim() === option.toLowerCase().trim();

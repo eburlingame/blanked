@@ -1,41 +1,43 @@
-import {
-  AnswerContents,
-  decodeAnswerContents,
-  QuizQuestionType,
-} from "@/util/parser";
+import { AnswerQuality, QuestionType } from "@/state/models";
 import { ScoredAnswer, scoreQuestion } from "@/util/score";
-import { Box, Button, HStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import AnswerInput from "./AnswerInput";
-import { QuestionStatus } from "./Quiz";
-import { Prose } from "./ui/prose";
+import QuestionBody from "./QuestionBody";
 
 export type QuestionProps = {
-  question: QuizQuestionType;
-  status: QuestionStatus;
-  onStatusChange: (status: QuestionStatus) => void;
-
-  onPrevious: () => void;
-  onNext: () => void;
+  totalQuestions: number;
+  question: QuestionType;
+  onSubmit: (quality: AnswerQuality, incorrectIndex: number[]) => void;
+  onStart: () => void;
 };
+
+export type QuestionStatus = "start" | "submitted" | "revealed" | "correct";
 
 const Question = ({
   question,
-  status,
-  onStatusChange,
-  onPrevious,
-  onNext,
+  onSubmit,
+  onStart,
+  totalQuestions,
 }: QuestionProps) => {
   const userAnswers = useRef<string[]>(question.answers.map(() => ""));
-  const [firstAnswer, setFirstAnswer] = useState(true);
-  const [isRevealed, setIsRevealed] = useState(false);
+
+  const [isStarted, setIsStarted] = useState(false);
+  const [status, setStatus] = useState<QuestionStatus>("start");
+  const [attempts, setAttempts] = useState(0);
+
   const [scoredAnswers, setScoredAnswer] = useState<ScoredAnswer[] | null>(
     null
   );
 
-  const setAnswer = (answerIndex: number) => (value: string) => {
+  const [firstIncorrectIndexes, setFirstIncorrectIndexes] = useState<number[]>(
+    []
+  );
+
+  const setAnswer = (answerIndex: number, value: string) => {
+    if (!isStarted) {
+      setIsStarted(true);
+      onStart();
+    }
+
     userAnswers.current = userAnswers.current.map((a, i) => {
       if (i === answerIndex) {
         return value;
@@ -45,138 +47,85 @@ const Question = ({
   };
 
   const scoreResponses = () => {
-    setFirstAnswer(false);
     const scored = scoreQuestion(question, userAnswers.current);
     setScoredAnswer(scored);
-
     return scored;
   };
 
   const onReveal = () => {
-    scoreResponses();
-    setIsRevealed(true);
+    setStatus("revealed");
   };
 
-  const submitQuestions = () => {
-    const scored = scoreResponses();
-    const questionCorrect = scored.every((a) => a.isCorrect);
+  const reset = () => {
+    setStatus("start");
+    setAttempts(0);
+    setScoredAnswer(null);
+    setFirstIncorrectIndexes([]);
+    userAnswers.current = question.answers.map(() => "");
+  };
 
-    if (firstAnswer && questionCorrect) {
-      onStatusChange("correct");
+  useEffect(() => {
+    reset();
+  }, [question.id, totalQuestions]);
+
+  const onQuestionSubmit = (markCorrect: boolean) => {
+    const scored = scoreResponses();
+    const allCorrect = scored.every((a) => a.isCorrect);
+    const allBlank = userAnswers.current.every((a) => a.trim() === "");
+
+    if (markCorrect) {
+      setStatus("correct");
+      onSubmit(AnswerQuality.AllCorrectOnFirstTry, []);
+      return;
+    }
+
+    if (allBlank) {
+      onReveal();
+    } else if (allCorrect) {
+      setStatus("correct");
+
+      if (status === "start") {
+        onSubmit(AnswerQuality.AllCorrectOnFirstTry, firstIncorrectIndexes);
+      } else {
+        if (attempts === 1) {
+          onSubmit(AnswerQuality.AllCorrectOnSecondTry, firstIncorrectIndexes);
+        } else {
+          onSubmit(AnswerQuality.ThreeOrMoreAttempts, firstIncorrectIndexes);
+        }
+      }
     } else {
-      onStatusChange("incorrect");
-      if (userAnswers.current.some((v) => v.trim() === "")) {
+      setFirstIncorrectIndexes(
+        scored
+          .map((a, i) => (a.isCorrect ? null : i))
+          .filter((i) => i !== null) as number[]
+      );
+
+      if (status === "start") {
+        setAttempts(1);
+        setStatus("submitted");
+      } else {
+        setAttempts((a) => a + 1);
         onReveal();
       }
     }
-
-    if (questionCorrect) {
-      setTimeout(() => onNext(), 450);
-    }
   };
 
-  useEffect(() => {
-    userAnswers.current = question.answers.map(() => "");
-    setScoredAnswer(null);
-    setFirstAnswer(status === "unanswered");
-
-    const isRevealed = status === "correct" || status === "incorrect";
-    if (isRevealed) {
-      onReveal();
-    }
-  }, [question]);
-
-  useEffect(() => {
-    const onKeydown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" && e.ctrlKey) {
-        e.stopPropagation();
-        e.preventDefault();
-        onNext();
-      }
-      if (e.key === "ArrowLeft" && e.ctrlKey) {
-        console.log("here");
-        e.stopPropagation();
-        e.preventDefault();
-        onPrevious();
-      }
-    };
-
-    window.addEventListener("keydown", onKeydown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeydown);
-    };
-  }, [onNext, onPrevious]);
-
-  const focusedAnswer =
+  const focusedAnswerIndex =
     scoredAnswers?.findIndex((a) => a.isCorrect === false) || 0;
 
   return (
-    <Box mt="4">
-      <Box
-        borderColor="gray.400"
-        borderRadius="md"
-        borderWidth="thin"
-        rounded="md"
-        p="4"
-      >
-        <Prose color="white" fontSize="md" lineHeight="1.5em">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              em: ({ node }) => {
-                const contents = getNodeContents(node);
-                if (!contents) return null;
-
-                const { answerIndex } = contents;
-
-                return (
-                  <AnswerInput
-                    key={answerIndex.toString()}
-                    shouldFocus={answerIndex === focusedAnswer}
-                    contents={contents}
-                    initialValue={userAnswers.current[answerIndex]}
-                    onSubmit={submitQuestions}
-                    onChange={setAnswer(answerIndex)}
-                    scoredAnswer={scoredAnswers?.[answerIndex] || null}
-                    isRevealed={isRevealed}
-                  />
-                );
-              },
-            }}
-          >
-            {question.markdown}
-          </Markdown>
-        </Prose>
-      </Box>
-
-      <HStack mt="2" justifyContent="center">
-        <Button colorPalette="gray" onClick={onPrevious}>
-          Previous
-        </Button>
-
-        <Button colorPalette="blue" onClick={onReveal}>
-          Reveal
-        </Button>
-
-        <Button colorPalette="green" onClick={submitQuestions}>
-          Submit
-        </Button>
-
-        <Button colorPalette="gray" onClick={onNext}>
-          Next
-        </Button>
-      </HStack>
-    </Box>
+    <QuestionBody
+      question={question}
+      status={status}
+      userAnswers={userAnswers.current}
+      onSetAnswer={setAnswer}
+      focusedAnswerIndex={focusedAnswerIndex}
+      scoredAnswers={scoredAnswers}
+      onSubmit={() => onQuestionSubmit(false)}
+      onSubmitAndMarkCorrect={() => onQuestionSubmit(true)}
+      onReveal={onReveal}
+    />
   );
 };
 
 export default Question;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getNodeContents = (node: any): AnswerContents | null => {
-  const contents = node?.children[0]?.value || null;
-  if (!contents) return null;
-
-  return decodeAnswerContents(contents);
-};

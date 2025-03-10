@@ -1,49 +1,24 @@
-import { QuizType } from "@/util/parser";
-import {
-  Box,
-  Button,
-  FormatNumber,
-  Heading,
-  HStack,
-  VStack,
-} from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import { QuestionStatus } from "./Quiz";
+import { StudySessionWithEvents } from "@/state/models";
+import { Heading, VStack } from "@chakra-ui/react";
 
 export type QuizSummaryProps = {
-  quiz: QuizType;
-  qStatuses: QuestionStatus[];
-  onReset: () => void;
+  session: StudySessionWithEvents;
 };
 
-const QuizSummary = ({ quiz, qStatuses, onReset }: QuizSummaryProps) => {
-  const router = useRouter();
-
-  const correctQuestions = qStatuses.filter(
-    (status) => status === "correct"
-  ).length;
-
-  const skipped = qStatuses.filter((status) => status === "unanswered").length;
-
+const QuizSummary = ({ session }: QuizSummaryProps) => {
   return (
-    <VStack alignItems="center">
-      <Heading mb={2}>Results</Heading>
-      <VStack spaceX={2} mb={4} justifyContent="center">
-        <Box>
-          <FormatNumber value={correctQuestions} /> / {quiz.questions.length}{" "}
-          correct
-        </Box>
-        <Box>
-          <FormatNumber value={skipped} /> skipped
-        </Box>
-      </VStack>
+    <VStack>
+      <Heading as="h2">Questions Complete!</Heading>
 
-      <HStack>
-        <Button onClick={() => router.push("/")} mr={2}>
-          Go Home
-        </Button>
-        <Button onClick={onReset}>Restart</Button>
-      </HStack>
+      {session.events.length > 0 ? (
+        <Heading as="h3" size="md">
+          {session.events.length} questions answered
+        </Heading>
+      ) : (
+        <Heading as="h3" size="md">
+          No questions answered
+        </Heading>
+      )}
     </VStack>
   );
 };

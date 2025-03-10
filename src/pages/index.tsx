@@ -1,26 +1,34 @@
 import Layout from "@/components/Layout";
-import dynamic from "next/dynamic";
-import Head from "next/head";
-
-const QuizList = dynamic(() => import("@/components/QuizList"), {
-  ssr: false,
-});
+import ReviewButton from "@/components/ReviewButton";
+import { Button, Heading, HStack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { LuAppWindow, LuQuote, LuWalletCards } from "react-icons/lu";
 
 export default function Home() {
-  return (
-    <>
-      <Head>
-        <title>Blanked</title>
-        <meta name="description" content="Fill in the blank study app" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  const router = useRouter();
 
-      <Layout>
-        <main>
-          <QuizList />
-        </main>
-      </Layout>
-    </>
+  return (
+    <Layout title="Blanked | Home" homeButton={false}>
+      <Heading mb="2">Home</Heading>
+
+      <HStack alignItems="stretch" w="full">
+        <Button flex="1" onClick={() => router.push("/banks")}>
+          <LuWalletCards />
+          Banks
+        </Button>
+        <Button flex="1" onClick={() => router.push("/questions")}>
+          <LuQuote />
+          Questions
+        </Button>
+        <Button flex="1" onClick={() => router.push("/sessions")}>
+          <LuAppWindow />
+          Sessions
+        </Button>
+      </HStack>
+
+      <HStack mt="2" w="full">
+        <ReviewButton />
+      </HStack>
+    </Layout>
   );
 }
