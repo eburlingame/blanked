@@ -1,7 +1,7 @@
 export type QuestionBankType = {
   id: string;
   name: string;
-  originUrl: string;
+  originUrl: string | null;
   description: string;
 };
 
@@ -78,10 +78,7 @@ export interface BlankedBackend {
     questionIds: string[]
   ): Promise<Record<string, QuestionType>>;
   addQuestion(questionBank: string, question: NewQuestionType): Promise<string>;
-  updateQuestion(
-    questionId: string,
-    updates: Partial<NewQuestionType>
-  ): Promise<void>;
+  updateQuestion(questionId: string, markdown: string): Promise<void>;
   deleteQuestion(questionId: string): Promise<void>;
   listQuestions(limit: number, offset: number): Promise<QuestionType[]>;
   searchQuestions(query: string): Promise<QuestionType[]>;

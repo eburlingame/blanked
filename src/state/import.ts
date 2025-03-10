@@ -2,16 +2,21 @@ import { useBackend } from "@/components/BackendBootstrapper";
 import { useMutation } from "@tanstack/react-query";
 import { parseQuestionBank } from "../util/parser";
 
+export type ImportParams = {
+  contents: string;
+  url: string | null;
+};
+
 export const useImportMarkdown = () => {
   const backend = useBackend();
 
-  const importQuestionBank = async (importUrl: string): Promise<string> => {
-    const response = await fetch(importUrl);
-    const text = await response.text();
-
+  const importQuestionBank = async ({
+    contents,
+    url,
+  }: ImportParams): Promise<string> => {
     const { questions, ...questionBank } = await parseQuestionBank(
-      importUrl,
-      text.trim()
+      url,
+      contents.trim()
     );
 
     const bankId = await backend.addQuestionBank(questionBank);

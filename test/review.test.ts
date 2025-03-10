@@ -42,7 +42,7 @@ const verifyNextStudyDate = (
 };
 
 describe("getNextStudyDate", () => {
-  test("no events should be next day", () => {
+  test("no events should be current day", () => {
     const events: StudyEvent[] = [];
     verifyNextStudyDate(events, "2024-03-01");
   });

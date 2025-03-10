@@ -73,8 +73,8 @@ const BankLink = () => {
               <VStack alignItems="flex-start" gap="0" ml="1">
                 <Box>{bank.name}</Box>
                 <Box fontSize="xs">
-                  {new URL(bank.originUrl).host} - {bank.numberOfQuestions}{" "}
-                  questions
+                  {bank.originUrl && `${new URL(bank.originUrl).host} - `}
+                  {bank.numberOfQuestions} questions
                 </Box>
               </VStack>
             </HStack>

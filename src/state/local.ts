@@ -1,4 +1,6 @@
+import { parseQuestion } from "@/util/parser";
 import { getNextStudyDate } from "@/util/review";
+import { isBefore, isEqual, parse } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
 import Fuse from "fuse.js";
 import { generate as shortUuid } from "short-uuid";
@@ -15,7 +17,6 @@ import {
   StudySession,
   StudySessionWithEvents,
 } from "./models";
-import { isBefore, parse } from "date-fns";
 
 export type AppDB = Dexie & {
   questions: EntityTable<QuestionType, "id">;
@@ -70,11 +71,9 @@ export class LocalBackend implements BlankedBackend {
     });
   }
 
-  async updateQuestion(
-    questionId: string,
-    updates: Partial<NewQuestionType>
-  ): Promise<void> {
-    await this.db.questions.update(questionId, updates);
+  async updateQuestion(questionId: string, newMarkdown: string): Promise<void> {
+    const parsedQuestion = await parseQuestion(newMarkdown);
+    await this.db.questions.update(questionId, parsedQuestion);
   }
 
   async deleteQuestion(questionId: string): Promise<void> {
@@ -217,7 +216,13 @@ export class LocalBackend implements BlankedBackend {
         const events = eventsByQuestion[q.id];
         const nextStudyDate = getNextStudyDate(studyDate, events);
 
-        if (isBefore(nextStudyDate, studyDate)) {
+        console.log("nextStudyDate", nextStudyDate);
+        console.log("studyDate", studyDate);
+
+        if (
+          isBefore(nextStudyDate, studyDate) ||
+          isEqual(nextStudyDate, studyDate)
+        ) {
           return true;
         }
         return false;

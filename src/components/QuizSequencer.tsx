@@ -20,6 +20,7 @@ export type QuizSequencerProps = {
 
 const QuizSequencer = ({ session }: QuizSequencerProps) => {
   const multipleQuestionsQuery = useMultipleQuestions(session.questionIds);
+  console.log(multipleQuestionsQuery.data);
 
   const {
     currentQuestionId,

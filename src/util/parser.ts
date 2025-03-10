@@ -12,7 +12,7 @@ import { visit } from "unist-util-visit";
 import { parse } from "yaml";
 
 export const parseQuestionBank = async (
-  url: string,
+  url: string | null,
   contents: string
 ): Promise<NewQuestionBankWithQuestionsType> => {
   const splitPattern = /---\n/g;
@@ -46,7 +46,7 @@ const parseFrontMatter = (yamlSection: string) => {
   };
 };
 
-const parseQuestion = async (
+export const parseQuestion = async (
   questionString: string
 ): Promise<NewQuestionType> => {
   const contents = await unified()

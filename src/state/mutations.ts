@@ -9,7 +9,7 @@ export const useUpdateQuestion = (questionId: string) => {
   return useMutation({
     mutationKey: ["updateQuestion", questionId],
     mutationFn: ({ markdown }: { markdown: string }) =>
-      backend.updateQuestion(questionId, { markdown }),
+      backend.updateQuestion(questionId, markdown),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getQuestion", questionId] });
       queryClient.invalidateQueries({ queryKey: ["listQuestions"] });

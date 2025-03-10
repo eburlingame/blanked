@@ -79,13 +79,17 @@ export const getLastStudyDate = (events: DayAndQuality[]): Date | null => {
   const dates = events.map((e) => parse(e.day, DAY_FORMAT, new Date()));
   dates.sort((a, b) => b.getTime() - a.getTime());
 
-  return dates[0];
+  return startOfDay(dates[0]);
 };
 
 export const getNextStudyDate = (date: Date, events: StudyEvent[]) => {
   const days = getLowestQualityPerDay(events);
   const interval = getStudyInterval(days);
   const lastEvent = getLastStudyDate(days);
+
+  // console.log("days", days);
+  // console.log("interval", interval);
+  // console.log("lastEvent", lastEvent);
 
   if (!lastEvent) {
     return startOfDay(date);

@@ -77,7 +77,7 @@ export const useQuestionsForReview = (dateStr: string) => {
   const backend = useBackend();
 
   return useQuery({
-    queryKey: ["useQuestionsForReview"],
+    queryKey: ["useQuestionsForReview", dateStr],
     queryFn: async () => backend.getQuestionsForReview(dateStr),
   });
 };
