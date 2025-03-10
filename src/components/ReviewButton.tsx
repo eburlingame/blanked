@@ -1,7 +1,7 @@
 import { useStartStudySession } from "@/state/mutations";
 import { useQuestionsForReview } from "@/state/queries";
-import { Button } from "@chakra-ui/react";
-import { formatDate } from "date-fns";
+import { Button, HStack } from "@chakra-ui/react";
+import { formatDate, startOfTomorrow } from "date-fns";
 import { useRouter } from "next/router";
 import Loadable from "./Loadable";
 
@@ -9,7 +9,10 @@ const ReviewButton = () => {
   const router = useRouter();
 
   const today = formatDate(new Date(), "yyyy-MM-dd");
-  const questionsQuery = useQuestionsForReview(today);
+  const tomorrow = formatDate(startOfTomorrow(), "yyyy-MM-dd");
+
+  const todayQuery = useQuestionsForReview(today);
+  const tomorrowQuery = useQuestionsForReview(tomorrow);
 
   const { mutateAsync: startStudySession } = useStartStudySession();
 
@@ -19,17 +22,30 @@ const ReviewButton = () => {
   };
 
   return (
-    <Loadable query={questionsQuery}>
-      {(questionIds) => (
-        <Button
-          colorPalette="green"
-          disabled={questionIds.length === 0}
-          onClick={() => onClick(questionIds)}
-        >
-          Review Now ({questionIds?.length} questions)
-        </Button>
-      )}
-    </Loadable>
+    <HStack>
+      <Loadable query={todayQuery}>
+        {(questionIds) => (
+          <Button
+            colorPalette="green"
+            disabled={questionIds.length === 0}
+            onClick={() => onClick(questionIds)}
+          >
+            Review current ({questionIds?.length} questions)
+          </Button>
+        )}
+      </Loadable>
+      <Loadable query={tomorrowQuery}>
+        {(questionIds) => (
+          <Button
+            colorPalette="gray"
+            disabled={questionIds.length === 0}
+            onClick={() => onClick(questionIds)}
+          >
+            Review next ({questionIds?.length} questions)
+          </Button>
+        )}
+      </Loadable>
+    </HStack>
   );
 };
 
