@@ -216,9 +216,6 @@ export class LocalBackend implements BlankedBackend {
         const events = eventsByQuestion[q.id];
         const nextStudyDate = getNextStudyDate(studyDate, events);
 
-        console.log("nextStudyDate", nextStudyDate);
-        console.log("studyDate", studyDate);
-
         if (
           isBefore(nextStudyDate, studyDate) ||
           isEqual(nextStudyDate, studyDate)

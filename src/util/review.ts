@@ -87,10 +87,6 @@ export const getNextStudyDate = (date: Date, events: StudyEvent[]) => {
   const interval = getStudyInterval(days);
   const lastEvent = getLastStudyDate(days);
 
-  // console.log("days", days);
-  // console.log("interval", interval);
-  // console.log("lastEvent", lastEvent);
-
   if (!lastEvent) {
     return startOfDay(date);
   }

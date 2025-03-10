@@ -20,7 +20,6 @@ export type QuizSequencerProps = {
 
 const QuizSequencer = ({ session }: QuizSequencerProps) => {
   const multipleQuestionsQuery = useMultipleQuestions(session.questionIds);
-  console.log(multipleQuestionsQuery.data);
 
   const {
     currentQuestionId,
@@ -43,8 +42,6 @@ const QuizSequencer = ({ session }: QuizSequencerProps) => {
   const queryClient = useQueryClient();
 
   const onSubmit = async (quality: AnswerQuality, incorrectIndex: number[]) => {
-    console.log("Submitting", quality, incorrectIndex);
-
     if (currentQuestionId) {
       await addStudyEvent({
         sessionId: session.id,
