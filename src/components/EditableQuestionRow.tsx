@@ -1,7 +1,8 @@
 import { QuestionType } from "@/state/models";
-import { useUpdateQuestion } from "@/state/mutations";
-import { Box, HStack, Textarea } from "@chakra-ui/react";
+import { useDeleteQuestion, useUpdateQuestion } from "@/state/mutations";
+import { Box, HStack, IconButton, Textarea } from "@chakra-ui/react";
 import { useState } from "react";
+import { LuTrash } from "react-icons/lu";
 
 export type EditableQuestionRowProps = {
   q: QuestionType;
@@ -12,10 +13,22 @@ const EditableQuestionRow = ({ q }: EditableQuestionRowProps) => {
   const [markdown, setMarkdown] = useState(q.markdown);
 
   const { mutateAsync: updateQuestion } = useUpdateQuestion(q.id);
+  const { mutateAsync: deleteQuestion } = useDeleteQuestion();
 
   const onUpdate = async () => {
     await updateQuestion({ markdown });
     setIsEditing(false);
+  };
+
+  const onDelete = async () => {
+    const confirm = window.confirm(
+      `Are you sure you want to delete this question?`
+    );
+
+    if (confirm) {
+      setIsEditing(false);
+      await deleteQuestion({ questionId: q.id });
+    }
   };
 
   return (
@@ -48,6 +61,15 @@ const EditableQuestionRow = ({ q }: EditableQuestionRowProps) => {
           minHeight="200px"
         />
       )}
+
+      <IconButton
+        aria-label="Delete question"
+        onClick={onDelete}
+        variant="ghost"
+        colorPalette="red"
+      >
+        <LuTrash />
+      </IconButton>
     </HStack>
   );
 };

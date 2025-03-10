@@ -9,6 +9,9 @@ export default function Import() {
 
   const [isImporting, setIsImporting] = useState(false);
   const [importUrl, setImportUrl] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [contents, setContents] = useState("");
 
   const { mutateAsync: importQuestions } = useImportMarkdown();
@@ -30,7 +33,10 @@ export default function Import() {
   const onImport = async () => {
     try {
       setIsImporting(true);
-      await importQuestions({ contents, url: null });
+      const fullContents =
+        `\nname: "${title}"\ndescription: "${description}"\n---\n${contents}`.trim();
+
+      await importQuestions({ contents: fullContents, url: null });
       router.push(`/banks`);
     } catch (error) {
       alert("Error importing items: " + error);
@@ -50,6 +56,21 @@ export default function Import() {
         </Tabs.List>
 
         <Tabs.Content value="raw">
+          <Input
+            autoFocus={true}
+            placeholder="Question bank name"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Input
+            placeholder="Question bank description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            mt="2"
+            mb="2"
+            width="100%"
+          />
+
           <Textarea
             placeholder="Paste your markdown here"
             value={contents}

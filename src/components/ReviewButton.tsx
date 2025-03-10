@@ -3,6 +3,7 @@ import { useQuestionsForReview } from "@/state/queries";
 import { Button, HStack } from "@chakra-ui/react";
 import { formatDate, startOfTomorrow } from "date-fns";
 import { useRouter } from "next/router";
+import { LuPen } from "react-icons/lu";
 import Loadable from "./Loadable";
 
 const ReviewButton = () => {
@@ -22,14 +23,16 @@ const ReviewButton = () => {
   };
 
   return (
-    <HStack>
+    <HStack w="full">
       <Loadable query={todayQuery}>
         {(questionIds) => (
           <Button
+            flex="1"
             colorPalette="green"
             disabled={questionIds.length === 0}
             onClick={() => onClick(questionIds)}
           >
+            <LuPen />
             Review current ({questionIds?.length} questions)
           </Button>
         )}
@@ -37,10 +40,12 @@ const ReviewButton = () => {
       <Loadable query={tomorrowQuery}>
         {(questionIds) => (
           <Button
+            flex="1"
             colorPalette="gray"
             disabled={questionIds.length === 0}
             onClick={() => onClick(questionIds)}
           >
+            <LuPen />
             Review next ({questionIds?.length} questions)
           </Button>
         )}

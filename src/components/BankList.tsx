@@ -29,6 +29,10 @@ const BankLink = () => {
     }
   };
 
+  const onEdit = async (bankId: string) => {
+    router.push(`/banks/${bankId}`);
+  };
+
   const { onReview } = useStartBankStudySession();
   const startReview = async (bankId: string) => {
     const sessionId = await onReview(bankId);
@@ -80,6 +84,14 @@ const BankLink = () => {
             </HStack>
 
             <ButtonGroup attached>
+              <Button
+                size="xs"
+                colorPalette="blue"
+                onClick={() => onEdit(bank.id)}
+              >
+                Edit
+              </Button>
+
               <Button
                 size="xs"
                 colorPalette="red"

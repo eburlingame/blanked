@@ -4,7 +4,7 @@ import { Heading } from "@chakra-ui/react";
 
 export default function Questions() {
   return (
-    <Layout title="Blanked | Questions" maxWidth="900px">
+    <Layout title="Blanked | Questions" maxWidth="1000px">
       <Heading mb="2">Questions</Heading>
       <QuestionList />
     </Layout>

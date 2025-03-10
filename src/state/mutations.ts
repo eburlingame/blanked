@@ -1,6 +1,6 @@
 import { useBackend } from "@/components/BackendBootstrapper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { NewStudyEvent, NewStudySession } from "./models";
+import { NewQuestionType, NewStudyEvent, NewStudySession } from "./models";
 
 export const useUpdateQuestion = (questionId: string) => {
   const backend = useBackend();
@@ -13,7 +13,55 @@ export const useUpdateQuestion = (questionId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["getQuestion", questionId] });
       queryClient.invalidateQueries({ queryKey: ["listQuestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["questionBankWithQuestions"],
+      });
       queryClient.invalidateQueries({ queryKey: ["questionsSearch"] });
+    },
+  });
+};
+
+export const useDeleteQuestion = () => {
+  const backend = useBackend();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["deleteQuestion"],
+    mutationFn: ({ questionId }: { questionId: string }) =>
+      backend.deleteQuestion(questionId),
+    onSuccess: (_, { questionId }) => {
+      queryClient.invalidateQueries({ queryKey: ["getQuestion", questionId] });
+      queryClient.invalidateQueries({ queryKey: ["listQuestions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["questionBankWithQuestions"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["questionsSearch"] });
+    },
+  });
+};
+
+export type AddQuestionParams = {
+  questionBankId: string;
+  questions: NewQuestionType[];
+};
+
+export const useAddQuestions = () => {
+  const backend = useBackend();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["addQuestions"],
+    mutationFn: ({ questionBankId, questions }: AddQuestionParams) => {
+      return Promise.all(
+        questions.map((q) => backend.addQuestion(questionBankId, q))
+      );
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getQuestion"] });
+      queryClient.invalidateQueries({ queryKey: ["listQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["questionsSearch"] });
+      queryClient.invalidateQueries({ queryKey: ["listQuestionBanks"] });
     },
   });
 };
