@@ -1,5 +1,5 @@
+import { AnswerType, QuestionType } from "@/state/models";
 import { closest } from "fastest-levenshtein";
-import { AnswerType, QuestionType } from "./parser";
 
 export type ScoredAnswer = {
   answer: string;

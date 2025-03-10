@@ -52,6 +52,8 @@ export type StudyEvent = {
 
 export type NewStudyEvent = Omit<StudyEvent, "id">;
 
+export type StudySessionWithEvents = StudySession & { events: StudyEvent[] };
+
 /*
 Answer qualities:
 0: reveal with no attempts
@@ -72,6 +74,9 @@ export enum AnswerQuality {
 export interface BlankedBackend {
   // Questions
   getQuestion(questionId: string): Promise<QuestionType>;
+  getMultipleQuestions(
+    questionIds: string[]
+  ): Promise<Record<string, QuestionType>>;
   addQuestion(questionBank: string, question: NewQuestionType): Promise<string>;
   updateQuestion(
     questionId: string,
@@ -90,7 +95,7 @@ export interface BlankedBackend {
 
   // Study
   getStudySession(sessionId: string): Promise<StudySession>;
-  getStudyEventsInSession(sessionId: string): Promise<StudyEvent[]>;
+  getStudySessionWithEvents(sessionId: string): Promise<StudySessionWithEvents>;
   startStudySession(timeStarted: NewStudySession): Promise<string>;
   endStudySession(sessionId: string, timeEnded: Date): Promise<void>;
   addStudyEvent(event: NewStudyEvent): Promise<void>;

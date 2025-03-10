@@ -1,93 +1,103 @@
-import { AnswerQuality, StudyEvent, StudySession } from "@/state/models";
-import { useQuestion } from "@/state/queries";
-import { VStack } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import {
+  AnswerQuality,
+  QuestionType,
+  StudySessionWithEvents,
+} from "@/state/models";
+import { useAddStudyEvent } from "@/state/mutations";
+import { useMultipleQuestions } from "@/state/queries";
+import { useQuizSequence } from "@/state/sequence";
+import { Box, VStack } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import Loadable from "./Loadable";
 import Question from "./Question";
 import QuizProgress from "./QuizProgress";
-import { useAddStudyEvent } from "@/state/mutations";
+import QuizSummary from "./QuizSummary";
 
 export type QuizSequencerProps = {
-  session: StudySession & { events: StudyEvent[] };
-};
-
-const pickRandomQuestion = (questionIds: string[]) => {
-  const nextInt = Math.floor(Math.random() * questionIds.length);
-  return questionIds[nextInt];
+  session: StudySessionWithEvents;
 };
 
 const QuizSequencer = ({ session }: QuizSequencerProps) => {
-  const [currentQuestionId, setCurrentQuestionId] = useState(
-    pickRandomQuestion(session.questionIds)
-  );
+  const multipleQuestionsQuery = useMultipleQuestions(session.questionIds);
+
+  const {
+    currentQuestionId,
+    onAdvance,
+    totalQuestions,
+    correctQuestions,
+    needsReviewQuestions,
+  } = useQuizSequence(session);
+
+  const { mutateAsync: addStudyEvent } = useAddStudyEvent();
 
   const [timeDisplayed, setTimeDisplayed] = useState(new Date());
   const [timeStarted, setTimeStarted] = useState(new Date());
 
-  const correctQuestions = useMemo(
-    () =>
-      new Set(
-        session.events
-          .filter((e) => e.answerQuality >= AnswerQuality.AllCorrectOnSecondTry)
-          .map((e) => e.questionId)
-      ),
-    [session.events]
-  );
-
-  const needsReviewQuestions = useMemo(
-    () =>
-      new Set(session.events.map((e) => e.questionId)).difference(
-        correctQuestions
-      ),
-    [session.events, correctQuestions]
-  );
-
-  const questionsToStudy = useMemo(
-    () => new Set(session.questionIds).difference(correctQuestions),
-    [session.questionIds, correctQuestions]
-  );
-
-  const { data: question } = useQuestion(currentQuestionId);
-
   const advanceQuestion = () => {
-    setCurrentQuestionId(pickRandomQuestion(Array.from(questionsToStudy)));
+    onAdvance();
     setTimeDisplayed(new Date());
   };
 
-  const { mutateAsync: addStudyEvent } = useAddStudyEvent();
+  const queryClient = useQueryClient();
 
   const onSubmit = async (quality: AnswerQuality, incorrectIndex: number[]) => {
     console.log("Submitting", quality, incorrectIndex);
 
-    await addStudyEvent({
-      sessionId: session.id,
-      incorrectAnswerIndexes: incorrectIndex,
-      timeDisplayed: timeDisplayed,
-      timeStarted: timeStarted,
-      timeCompleted: new Date(),
-      questionId: currentQuestionId,
-      answerQuality: quality,
-    });
+    if (currentQuestionId) {
+      await addStudyEvent({
+        sessionId: session.id,
+        incorrectAnswerIndexes: incorrectIndex,
+        timeDisplayed: timeDisplayed,
+        timeStarted: timeStarted,
+        timeCompleted: new Date(),
+        questionId: currentQuestionId,
+        answerQuality: quality,
+      });
 
-    setTimeout(advanceQuestion, 750);
+      await queryClient.invalidateQueries({
+        queryKey: ["studySession"],
+      });
+
+      advanceQuestion();
+    }
   };
 
   const onStart = () => {
     setTimeStarted(new Date());
   };
 
-  return (
-    <VStack align="stretch">
-      <QuizProgress
-        questionsCompleted={session.events.length}
-        totalQuestions={session.events.length + questionsToStudy.size}
-        numberCorrect={correctQuestions.size}
-        numberNeedsReview={needsReviewQuestions.size}
-      />
+  if (currentQuestionId === null) {
+    return <QuizSummary session={session} />;
+  }
 
-      {question && (
-        <Question question={question} onSubmit={onSubmit} onStart={onStart} />
-      )}
-    </VStack>
+  return (
+    <Loadable query={multipleQuestionsQuery}>
+      {(questions: Record<string, QuestionType>) => {
+        const question = questions[currentQuestionId];
+        if (!question) {
+          return <Box>Question not found.</Box>;
+        }
+
+        return (
+          <VStack align="stretch">
+            <QuizProgress
+              questionsCompleted={session.events.length}
+              totalQuestions={totalQuestions}
+              numberCorrect={correctQuestions.size}
+              numberNeedsReview={needsReviewQuestions.size}
+            />
+
+            <Question
+              totalQuestions={totalQuestions}
+              question={question}
+              onSubmit={onSubmit}
+              onStart={onStart}
+            />
+          </VStack>
+        );
+      }}
+    </Loadable>
   );
 };
 

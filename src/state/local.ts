@@ -12,6 +12,7 @@ import {
   QuestionType,
   StudyEvent,
   StudySession,
+  StudySessionWithEvents,
 } from "./models";
 
 export type AppDB = Dexie & {
@@ -41,6 +42,19 @@ export class LocalBackend implements BlankedBackend {
       throw new Error("Question not found");
     }
     return q;
+  }
+
+  async getMultipleQuestions(
+    questionIds: string[]
+  ): Promise<Record<string, QuestionType>> {
+    const questions = await this.db.questions.bulkGet(questionIds);
+
+    return questions
+      .filter((q) => q !== undefined)
+      .reduce((acc, q) => {
+        if (q) acc[q.id] = q;
+        return acc;
+      }, {} as Record<string, QuestionType>);
   }
 
   async addQuestion(
@@ -126,8 +140,19 @@ export class LocalBackend implements BlankedBackend {
     if (!session) {
       throw new Error("Study session not found");
     }
-
     return session;
+  }
+
+  async getStudySessionWithEvents(
+    sessionId: string
+  ): Promise<StudySessionWithEvents> {
+    const session = await this.db.studySessions.get(sessionId);
+    if (!session) {
+      throw new Error("Study session not found");
+    }
+
+    const events = await this.getStudyEventsInSession(sessionId);
+    return { ...session, events };
   }
 
   async getStudyEventsInSession(sessionId: string): Promise<StudyEvent[]> {

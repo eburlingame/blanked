@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import QuestionBody from "./QuestionBody";
 
 export type QuestionProps = {
+  totalQuestions: number;
   question: QuestionType;
   onSubmit: (quality: AnswerQuality, incorrectIndex: number[]) => void;
   onStart: () => void;
@@ -11,7 +12,12 @@ export type QuestionProps = {
 
 export type QuestionStatus = "start" | "submitted" | "revealed" | "correct";
 
-const Question = ({ question, onSubmit, onStart }: QuestionProps) => {
+const Question = ({
+  question,
+  onSubmit,
+  onStart,
+  totalQuestions,
+}: QuestionProps) => {
   const userAnswers = useRef<string[]>(question.answers.map(() => ""));
 
   const [isStarted, setIsStarted] = useState(false);
@@ -55,11 +61,12 @@ const Question = ({ question, onSubmit, onStart }: QuestionProps) => {
     setAttempts(0);
     setScoredAnswer(null);
     setFirstIncorrectIndexes([]);
+    userAnswers.current = question.answers.map(() => "");
   };
 
   useEffect(() => {
     reset();
-  }, [question.id]);
+  }, [question.id, totalQuestions]);
 
   const onQuestionSubmit = (markCorrect: boolean) => {
     const scored = scoreResponses();

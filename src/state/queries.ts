@@ -46,6 +46,15 @@ export const useQuestion = (questionId: string) => {
   });
 };
 
+export const useMultipleQuestions = (questionIds: string[]) => {
+  const backend = useBackend();
+
+  return useQuery({
+    queryKey: ["multipleQuestions", questionIds],
+    queryFn: () => backend.getMultipleQuestions(questionIds),
+  });
+};
+
 export const useQuestionBankWithQuestions = (bankId: string) => {
   const backend = useBackend();
 
@@ -60,10 +69,6 @@ export const useStudySession = (sessionId: string) => {
 
   return useQuery({
     queryKey: ["studySession", sessionId],
-    queryFn: async () => {
-      const session = await backend.getStudySession(sessionId);
-      const events = await backend.getStudyEventsInSession(sessionId);
-      return { ...session, events };
-    },
+    queryFn: async () => backend.getStudySessionWithEvents(sessionId),
   });
 };
