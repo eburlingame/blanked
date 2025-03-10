@@ -2,12 +2,7 @@ import Layout from "@/components/Layout";
 import { Button, Heading, HStack } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import {
-  LuAppWindow,
-  LuDownload,
-  LuQuote,
-  LuWalletCards,
-} from "react-icons/lu";
+import { LuDownload, LuQuote, LuWalletCards } from "react-icons/lu";
 
 const ReviewButton = dynamic(() => import("@/components/ReviewButton"), {
   ssr: false,
