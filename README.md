@@ -21,27 +21,15 @@ name: Test Quiz
 description: My cool cat quiz
 
 ---
-
-## What's up _doc_?
-
-## Anything within an _emphasis_ tag will be a _blank_ when the user takes the quiz.
-
-You can group responses in brackets, meaning the user has to fill in all elements of the group, but it can be in any order:
-
-## The primary colors are [*red*, *blue*, and *yellow*].
-
-Markdown formatting works:
-
-1. _This_ is a list
-2. _With_ some _answers_
-
+What's up *doc*?
 ---
-
-Here's an unorderedlist:
-
-- _A_
-- _B_
-- _C_
+How's it *going|hanging*?
+---
+Group [*A*, *B*, or, *C*] can be in any order, and *Q*?
+---
+You can use usual markdown features, like lists:
+1. *This* is a list
+2. *With* some *answers*
 ```
 
 ## Development
