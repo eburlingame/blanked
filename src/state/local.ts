@@ -1,3 +1,4 @@
+import { getNextStudyDate } from "@/util/review";
 import Dexie, { EntityTable } from "dexie";
 import Fuse from "fuse.js";
 import { generate as shortUuid } from "short-uuid";
@@ -14,6 +15,7 @@ import {
   StudySession,
   StudySessionWithEvents,
 } from "./models";
+import { isBefore } from "date-fns";
 
 export type AppDB = Dexie & {
   questions: EntityTable<QuestionType, "id">;
@@ -35,7 +37,6 @@ export class LocalBackend implements BlankedBackend {
       studyEvents: "id",
     });
   }
-
   async getQuestion(questionId: string): Promise<QuestionType> {
     const q = await this.db.questions.get(questionId);
     if (!q) {
@@ -186,5 +187,34 @@ export class LocalBackend implements BlankedBackend {
       ...event,
       id: shortUuid(),
     });
+  }
+
+  async getQuestionsForReview(): Promise<string[]> {
+    const allEvents = await this.db.studyEvents.toArray();
+
+    const eventsByQuestion = allEvents.reduce(
+      (acc: Record<string, StudyEvent[]>, event) => {
+        if (!acc[event.questionId]) {
+          acc[event.questionId] = [];
+        }
+        acc[event.questionId].push(event);
+        return acc;
+      },
+      {}
+    );
+
+    const questionsForReview = Object.keys(eventsByQuestion).filter(
+      (questionId) => {
+        const events = eventsByQuestion[questionId];
+        const nextStudyDate = getNextStudyDate(events);
+
+        if (isBefore(nextStudyDate, new Date())) {
+          return true;
+        }
+        return false;
+      }
+    );
+
+    return questionsForReview;
   }
 }

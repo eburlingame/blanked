@@ -100,4 +100,7 @@ export interface BlankedBackend {
   endStudySession(sessionId: string, timeEnded: Date): Promise<void>;
   addStudyEvent(event: NewStudyEvent): Promise<void>;
   listStudySessions(): Promise<StudySession[]>;
+
+  // Review
+  getQuestionsForReview(): Promise<string[]>;
 }

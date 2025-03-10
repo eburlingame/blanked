@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import ReviewButton from "@/components/ReviewButton";
 import { Button, Heading, HStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
@@ -15,7 +16,7 @@ export default function Home() {
       </HStack>
 
       <HStack mt="2">
-        <Button colorPalette="green">Review Now</Button>
+        <ReviewButton />
       </HStack>
     </Layout>
   );

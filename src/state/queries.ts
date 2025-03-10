@@ -72,3 +72,12 @@ export const useStudySession = (sessionId: string) => {
     queryFn: async () => backend.getStudySessionWithEvents(sessionId),
   });
 };
+
+export const useQuestionsForReview = () => {
+  const backend = useBackend();
+
+  return useQuery({
+    queryKey: ["useQuestionsForReview"],
+    queryFn: async () => backend.getQuestionsForReview(),
+  });
+};

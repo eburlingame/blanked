@@ -80,7 +80,13 @@ export const useQuizSequence = (session: StudySessionWithEvents) => {
 
   const advanceQuestion = async () => {
     const latestSession = await backend.getStudySessionWithEvents(session.id);
-    setCurrentQuestionId(getNextQuestionId(latestSession));
+    const nextQuestionId = getNextQuestionId(latestSession);
+
+    if (nextQuestionId === null) {
+      backend.endStudySession(session.id, new Date());
+    }
+
+    setCurrentQuestionId(nextQuestionId);
   };
 
   const totalQuestions = session.events.length + questionsToStudy.size;

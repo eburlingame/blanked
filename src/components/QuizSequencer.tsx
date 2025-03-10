@@ -59,7 +59,7 @@ const QuizSequencer = ({ session }: QuizSequencerProps) => {
         queryKey: ["studySession"],
       });
 
-      advanceQuestion();
+      setTimeout(advanceQuestion, 750);
     }
   };
 
