@@ -6,21 +6,15 @@ A web-based fill-in-the-blank style quiz application. Allows you to write fill-i
 
 I built this when studying for FAA knowledge exams, since those tests have lots of specific numbers and phrases they want you to remember.
 
-## Usage
+## Question Review 
 
-1. Create a markdown quiz file, hosted somewhere. I host mine using GitHub Gists ([here's a sample quiz](https://gist.githubusercontent.com/eburlingame/a2db13e3e41834756cee8c77bcb885d3/raw/7db060f891994dfda021351794d5e1b86737fdfe/TestQuiz.md))
-2. Go to [the blanked app](https://eburlingame.github.io/blanked) and import your quiz using the Gist URL
-3. Take your quiz
+Blanked has a question review feature which prompts you to answer certain questions on a daily cadence. The selection of the questions is done using the [SuperMemo SM-2 algorithm](https://super-memory.com/english/ol/sm2.htm), similar to the Anki flashcard program.
 
 ### Quiz Format
 
 The quiz format is a markdown file with a small amount of front matter. Questions are separated by a horizontal rule `---`:
 
 ```md
-name: Test Quiz
-description: My cool cat quiz
-
----
 What's up *doc*?
 ---
 How's it *going|hanging*?
