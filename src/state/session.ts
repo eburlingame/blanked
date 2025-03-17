@@ -1,4 +1,5 @@
 import { useBackend } from "@/components/BackendBootstrapper";
+import shuffle from "knuth-shuffle-seeded";
 import { useStartStudySession } from "./mutations";
 
 export const useStartBankStudySession = () => {
@@ -8,7 +9,8 @@ export const useStartBankStudySession = () => {
 
   const onReview = async (bankId: string) => {
     const questions = await backend.listQuestionsInBank(bankId);
-    const sessionId = await startSession(questions.map((q) => q.id));
+    const questionIds = shuffle(questions.map((q) => q.id));
+    const sessionId = await startSession(questionIds);
 
     return sessionId;
   };

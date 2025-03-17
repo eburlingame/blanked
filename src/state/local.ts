@@ -4,6 +4,7 @@ import { isBefore, isEqual, parse } from "date-fns";
 import Dexie, { EntityTable } from "dexie";
 import { exportDB, importInto } from "dexie-export-import";
 import Fuse from "fuse.js";
+import shuffle from "knuth-shuffle-seeded";
 import { generate as shortUuid } from "short-uuid";
 import {
   BlankedBackend,
@@ -227,7 +228,9 @@ export class LocalBackend implements BlankedBackend {
       })
       .map(({ id }) => id);
 
-    return questionsForReview;
+    const shuffledQuestions = shuffle(questionsForReview);
+
+    return shuffledQuestions;
   }
 
   async exportData(): Promise<Blob> {

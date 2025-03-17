@@ -43,6 +43,7 @@
     "@eslint/eslintrc": "^3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
+    "@types/knuth-shuffle-seeded": "^1.0.2",
     "@types/lodash.groupby": "^4.6.9",
     "@types/node": "^20",
     "@types/react": "^19",
