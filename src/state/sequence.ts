@@ -62,7 +62,7 @@ export const useQuizSequence = (session: StudySessionWithEvents) => {
     () =>
       new Set(
         session.events
-          .filter((e) => e.answerQuality >= AnswerQuality.AllCorrectOnSecondTry)
+          .filter((e) => e.answerQuality >= AnswerQuality.AllCorrectOnFirstTry)
           .map((e) => e.questionId)
       ),
     [session.events]
@@ -83,7 +83,7 @@ export const useQuizSequence = (session: StudySessionWithEvents) => {
     const nextQuestionId = getNextQuestionId(latestSession);
 
     if (nextQuestionId === null) {
-      backend.endStudySession(session.id, new Date());
+      return backend.endStudySession(session.id, new Date());
     }
 
     setCurrentQuestionId(nextQuestionId);
